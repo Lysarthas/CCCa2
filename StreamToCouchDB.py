@@ -43,6 +43,6 @@ class TweetStreamListener(tweepy.StreamListener):
 ## get new stream tweets
 twitter_stream = tweepy.streaming.Stream(auth,TweetStreamListener())
 
-melbourne_bound_box = get_location('melbourne')
-melbourne_bound_box = melbourne_bound_box[0][::-1] + melbourne_bound_box[1][::-1]
-twitter_stream.filter(locations=melbourne_bound_box, track=get_covid_track())
+australia_bound_box = get_location('australia')
+australia_bound_box = australia_bound_box[0][::-1] + australia_bound_box[1][::-1]
+twitter_stream.filter(locations=australia_bound_box)
