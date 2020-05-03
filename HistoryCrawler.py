@@ -95,12 +95,14 @@ class HistoryCrawler:
                 self.finished_users_db.create_document({'_id': user_id})
                 is_finished = True
             except tweepy.RateLimitError:
+                print('sleep')
                 time.sleep(15 * 60)
 
 ## api pool
 api1, auth1 = init_api('karun')
 api2, auth2 = init_api('jinyi')
-api_list = [(api1, auth1), (api2, auth2)]
+api3, auth3 = init_api('han')
+api_list = [(api1, auth1), (api2, auth2), (api3, auth3)]
 
 ## start date & end date
 start_date = datetime(2020, 1, 20, 0, 0, 0)
