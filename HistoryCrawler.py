@@ -37,7 +37,8 @@ class HistoryCrawler:
         self.target_users = self.get_target_users()
         all_tasks = []
         for user_id in self.target_users:
-            probability_distribution = 1 - self.api_select_count / sum(self.api_select_count)
+            probability_distribution = 1. / self.api_select_count
+            probability_distribution = probability_distribution / np.sum(probability_distribution)
             draw = choice(range(len(self.api_list)), 1, p=probability_distribution)[0]
             self.api_select_count[draw] += 1
             api, auth = self.api_list[draw]
