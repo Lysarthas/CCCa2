@@ -82,12 +82,13 @@ class HistoryCrawler:
                 if max_id < 0 or not tmp_tweets:
                     tmp_tweets = api.user_timeline(user_id)
                     self.date_filter(tmp_tweets)
-                    time.sleep(10)
                     max_id = tmp_tweets[-1].id
+                    time.sleep(10)
 
                 while (tmp_tweets and tmp_tweets[-1].created_at > self.start_date):
                     tmp_tweets = api.user_timeline(user_id, max_id = max_id)
                     self.date_filter(tmp_tweets)
+                    max_id = tmp_tweets[-1].id
                     time.sleep(10)
                 
                 ## mark the user finished
