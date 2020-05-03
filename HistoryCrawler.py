@@ -3,7 +3,7 @@ from concurrent.futures import ThreadPoolExecutor, wait
 import time
 import numpy as np
 from numpy.random import choice
-import datetime
+from datetime import datetime
 
 class HistoryCrawler:
     def __init__(self, api_list, start_date, end_date):
@@ -103,8 +103,8 @@ api2, auth2 = init_api('jinyi')
 api_list = [(api1, auth1), (api2, auth2)]
 
 ## start date & end date
-start_date = datetime.datetime(2020, 1, 20, 0, 0, 0)
-end_date = datetime.datetime(2020, 5, 1, 0, 0, 0)
+start_date = datetime(2020, 1, 20, 0, 0, 0)
+end_date = datetime.combine(datetime.today(), datetime.min.time())
 
 
 hc = HistoryCrawler(api_list, start_date, end_date)
