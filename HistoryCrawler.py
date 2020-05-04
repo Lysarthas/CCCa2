@@ -13,7 +13,7 @@ class HistoryCrawler:
         self.finished_users_db = get_db_client('finished_user') ## db to store the users who has been crawled
         self.history_db = get_db_client('history')
 
-        self.pool = ThreadPoolExecutor(max_workers=4)
+        self.pool = ThreadPoolExecutor(max_workers=8)
 
         self.api_list = api_list
         self.api_select_count = np.ones(len(self.api_list), dtype=np.int)
@@ -84,13 +84,13 @@ class HistoryCrawler:
                     tmp_tweets = api.user_timeline(user_id)
                     self.date_filter(tmp_tweets)
                     max_id = tmp_tweets[-1].id
-                    time.sleep(2)
+                    time.sleep(.5)
 
                 while (tmp_tweets and tmp_tweets[-1].created_at > self.start_date):
                     tmp_tweets = api.user_timeline(user_id, max_id = max_id)
                     self.date_filter(tmp_tweets)
                     max_id = tmp_tweets[-1].id
-                    time.sleep(2)
+                    time.sleep(.5)
                 
                 ## mark the user finished
                 self.finished_users_db.create_document({'_id': user_id})
@@ -103,7 +103,8 @@ class HistoryCrawler:
 api1, auth1 = init_api('karun')
 api2, auth2 = init_api('jinyi')
 api3, auth3 = init_api('han')
-api_list = [(api1, auth1), (api2, auth2), (api3, auth3)]
+api4, auth4 = init_api('jkc')
+api_list = [(api1, auth1), (api2, auth2), (api3, auth3), (api4, auth4)]
 
 ## start date & end date
 start_date = datetime(2020, 1, 20, 0, 0, 0)
