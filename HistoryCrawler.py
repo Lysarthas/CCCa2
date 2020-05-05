@@ -1,8 +1,6 @@
 from util import *
 from concurrent.futures import ThreadPoolExecutor, wait
 import time
-import numpy as np
-from numpy.random import choice
 from datetime import datetime
 import threading
 
@@ -17,7 +15,6 @@ class HistoryCrawler:
         self.pool = ThreadPoolExecutor(max_workers=8)
 
         self.api_list = api_list
-        self.api_select_count = np.ones(len(self.api_list), dtype=np.int)
         self.start_date = start_date
         self.end_date = end_date
 
@@ -37,12 +34,10 @@ class HistoryCrawler:
     def run(self):
         self.target_users = self.get_target_users()
         all_tasks = []
+        anchor = 0
         for user_id in self.target_users:
-            probability_distribution = 1. / self.api_select_count
-            probability_distribution = probability_distribution / np.sum(probability_distribution)
-            draw = choice(range(len(self.api_list)), 1, p=probability_distribution)[0]
-            self.api_select_count[draw] += 1
-            api, auth = self.api_list[draw]
+            api, auth = self.api_list[anchor]
+            anchor = (anchor + 1) % len(self.api_list)
             all_tasks.append(self.pool.submit(self.craw_timeline, user_id, api, auth))
         wait(all_tasks)
 
@@ -85,13 +80,13 @@ class HistoryCrawler:
                     tmp_tweets = api.user_timeline(user_id)
                     self.date_filter(tmp_tweets)
                     max_id = tmp_tweets[-1].id
-                    time.sleep(.5)
+                    time.sleep(1)
 
                 while (tmp_tweets and tmp_tweets[-1].created_at > self.start_date):
                     tmp_tweets = api.user_timeline(user_id, max_id = max_id)
                     self.date_filter(tmp_tweets)
                     max_id = tmp_tweets[-1].id
-                    time.sleep(.5)
+                    time.sleep(1)
                 
                 ## mark the user finished
                 self.finished_users_db.create_document({'_id': user_id})
