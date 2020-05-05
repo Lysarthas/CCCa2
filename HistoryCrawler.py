@@ -69,25 +69,35 @@ class HistoryCrawler:
         }
         self.history_db.create_document(doc)
 
-    def date_filter(self, tweets: list):
+    def date_filter(self, tweets: list, create_doc_count: int):
         for status in tweets:
             if status.created_at < self.end_date and status.created_at > self.start_date:
                 self.createDoc(status)
+                create_doc_count += 1
             elif status.created_at > self.end_date:
                 print('%s too new' % status.created_at)
             else:
                 print('%s too old' % status.created_at)
 
+        return create_doc_count
+
     def craw_timeline(self, user_id, api, auth, max_id):
         user_id = str(user_id)
+        create_doc_count = 0
         while True:
             try:
                 tmp_tweets = api.user_timeline(user_id, count = 200, include_rts=True, max_id = max_id)
-                self.date_filter(tmp_tweets)
+                create_doc_count = self.date_filter(tmp_tweets, create_doc_count)
                 max_id = tmp_tweets[-1].id
                 time.sleep(1)
-                if (tmp_tweets[-1].created_at > self.start_date):
+                if tmp_tweets[-1].created_at > self.start_date:
                     self.finished_users_db.create_document({'_id': user_id})
+                    print("no more tweet")
+                    break
+
+                if create_doc_count > 200:
+                    self.finished_users_db.create_document({'_id': user_id})
+                    print("enough tweet")
                     break
             except tweepy.RateLimitError:
                 print('%s sleeping' % threading.get_ident() ,flush=True)
