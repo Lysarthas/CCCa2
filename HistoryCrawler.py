@@ -98,7 +98,7 @@ class HistoryCrawler:
                 is_finished = True
             except tweepy.RateLimitError:
                 print('%s sleeping' % threading.get_ident() ,flush=True)
-                time.sleep(10 * 60)
+                time.sleep(15 * 60)
 
 ## api pool
 api1, auth1 = init_api('karun')
