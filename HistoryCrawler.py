@@ -19,8 +19,8 @@ class HistoryCrawler:
         self.end_date = end_date
 
     def get_all_users(self):
-        view_result = self.tweet_db.get_view_result('_design/results', 'user', group_level = 1, raw_result=True)
-        return [row['key'] for row in view_result['rows']]
+        view_result = self.tweet_db.get_view_result('_design/results', 'user', group_level = 1, raw_result=True, reduce=True)
+        return [(row['key'], row['value']) for row in view_result['rows']]
 
     def get_finished_users(self):
         all_docs = self.finished_users_db.all_docs()
@@ -29,16 +29,21 @@ class HistoryCrawler:
     def get_target_users(self):
         finished_users = self.get_finished_users()
         all_users = self.get_all_users()
-        return list(set(all_users) - set(finished_users))
+        target_users = []
+        for user, max_tweet_id in all_users:
+            if user not in finished_users:
+                target_users.append((user, max_tweet_id))
+        return target_users
+
 
     def run(self):
         self.target_users = self.get_target_users()
         all_tasks = []
         anchor = 0
-        for user_id in self.target_users:
+        for user_id, max_id in self.target_users:
             api, auth = self.api_list[anchor]
             anchor = (anchor + 1) % len(self.api_list)
-            all_tasks.append(self.pool.submit(self.craw_timeline, user_id, api, auth))
+            all_tasks.append(self.pool.submit(self.craw_timeline, user_id, api, auth, max_id))
         wait(all_tasks)
 
     def createDoc(self, data):
@@ -68,32 +73,22 @@ class HistoryCrawler:
         for status in tweets:
             if status.created_at < self.end_date and status.created_at > self.start_date:
                 self.createDoc(status)
+            elif status.created_at > self.end_date:
+                print('%s too new' % status.created_at)
             else:
-                print('too old or too new')
+                print('%s too old' % status.created_at)
 
-    def craw_timeline(self, user_id, api, auth):
-        max_id = -1
-        is_finished = False
-        tmp_tweets = []
+    def craw_timeline(self, user_id, api, auth, max_id):
         user_id = str(user_id)
-
-        while not is_finished:
+        while True:
             try:
-                if max_id < 0 or not tmp_tweets:
-                    tmp_tweets = api.user_timeline(user_id, count = 200, include_rts=True)
-                    self.date_filter(tmp_tweets)
-                    max_id = tmp_tweets[-1].id
-                    time.sleep(1)
-
-                while (tmp_tweets and tmp_tweets[-1].created_at > self.start_date):
-                    tmp_tweets = api.user_timeline(user_id, count = 200, include_rts=True, max_id = max_id)
-                    self.date_filter(tmp_tweets)
-                    max_id = tmp_tweets[-1].id
-                    time.sleep(1)
-                
-                ## mark the user finished
-                self.finished_users_db.create_document({'_id': user_id})
-                is_finished = True
+                tmp_tweets = api.user_timeline(user_id, count = 200, include_rts=True, max_id = max_id)
+                self.date_filter(tmp_tweets)
+                max_id = tmp_tweets[-1].id
+                time.sleep(1)
+                if (tmp_tweets[-1].created_at > self.start_date):
+                    self.finished_users_db.create_document({'_id': user_id})
+                    break
             except tweepy.RateLimitError:
                 print('%s sleeping' % threading.get_ident() ,flush=True)
                 time.sleep(15 * 60)
