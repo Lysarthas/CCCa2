@@ -74,10 +74,10 @@ class HistoryCrawler:
             if status.created_at < self.end_date and status.created_at > self.start_date:
                 self.createDoc(status)
                 create_doc_count += 1
-            elif status.created_at > self.end_date:
-                print('%s too new' % status.created_at)
-            else:
-                print('%s too old' % status.created_at)
+            # elif status.created_at > self.end_date:
+            #     print('%s too new' % status.created_at)
+            # else:
+            #     print('%s too old' % status.created_at)
 
         return create_doc_count
 
