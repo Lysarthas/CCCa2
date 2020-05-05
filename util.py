@@ -3,6 +3,7 @@ import tweepy
 from collections import namedtuple
 from cloudant.client import Cloudant
 import os
+import sys
 
 config_file = 'config.json'
 
@@ -39,12 +40,14 @@ def get_db_client(db_name: str = None):
                 print("connect %s failed" % url)
         if not connected:
             print("cannot connect to db, exiting")
+            sys.exit(1)
     else:
         url = db_config.get('url')
         try:
             client = Cloudant(user, passwd, url=url, connect=True, auto_renew=True)
         except:
             print("cannot connect to db, exiting")
+            sys.exit(1)
 
     db_name = db_config.get('db') if db_name is None else db_name
     return client[db_name]
