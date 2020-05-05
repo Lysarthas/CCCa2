@@ -2,6 +2,7 @@ import json
 import tweepy
 from collections import namedtuple
 from cloudant.client import Cloudant
+import os
 
 config_file = 'config.json'
 
@@ -23,8 +24,28 @@ def get_db_client(db_name: str = None):
     db_config = config.get('db')
     user = db_config.get('user')
     passwd = db_config.get('password')
-    url = db_config.get('url')
-    client = Cloudant(user, passwd, url=url, connect=True, auto_renew=True)
+
+    db_list = os.environ['dbip']
+    if db_list:
+        db_list = db_list.split(',')
+        connected = False
+        for ip in db_list:
+            try:
+                url = 'http://%s:15984' % ip
+                client = Cloudant(user, passwd, url=url, connect=True, auto_renew=True)
+                connected = True
+                break
+            except:
+                print("connect %s failed" % ip)
+        if not connected:
+            print("cannot connect to db, exiting")
+    else:
+        url = db_config.get('url')
+        try:
+            client = Cloudant(user, passwd, url=url, connect=True, auto_renew=True)
+        except:
+            print("cannot connect to db, exiting")
+
     db_name = db_config.get('db') if db_name is None else db_name
     return client[db_name]
 
