@@ -102,6 +102,9 @@ class HistoryCrawler:
                     print("enough tweet")
                     gc.collect()
                     break
+
+                del tmp_tweets[:]
+                del tmp_tweets
             except tweepy.RateLimitError:
                 print('%s sleeping' % threading.get_ident() ,flush=True)
                 time.sleep(15 * 60)
