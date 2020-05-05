@@ -43,6 +43,7 @@ class HistoryCrawler:
 
     def createDoc(self, data):
         if str(data.id) in self.history_db: ## check duplicate
+            print("duplicate")
             return
 
         place = getattr(data, 'place')
@@ -67,6 +68,8 @@ class HistoryCrawler:
         for status in tweets:
             if status.created_at < self.end_date and status.created_at > self.start_date:
                 self.createDoc(status)
+            else:
+                print('too old or too new')
 
     def craw_timeline(self, user_id, api, auth):
         max_id = -1
