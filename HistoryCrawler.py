@@ -3,7 +3,6 @@ from concurrent.futures import ThreadPoolExecutor, wait
 import time
 from datetime import datetime
 import threading
-import gc
 
 class HistoryCrawler:
     def __init__(self, api_list, start_date, end_date):
@@ -49,7 +48,7 @@ class HistoryCrawler:
 
     def createDoc(self, data):
         if str(data.id) in self.history_db: ## check duplicate
-            print("duplicate")
+            # print("duplicate")
             return
 
         place = getattr(data, 'place')
@@ -94,17 +93,13 @@ class HistoryCrawler:
                 if tmp_tweets[-1].created_at < self.start_date:
                     self.finished_users_db.create_document({'_id': user_id})
                     print("no more tweet")
-                    gc.collect()
                     break
 
                 if create_doc_count > 200:
                     self.finished_users_db.create_document({'_id': user_id})
                     print("enough tweet")
-                    gc.collect()
                     break
 
-                del tmp_tweets[:]
-                del tmp_tweets
             except tweepy.RateLimitError:
                 print('%s sleeping' % threading.get_ident() ,flush=True)
                 time.sleep(15 * 60)
