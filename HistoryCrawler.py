@@ -42,14 +42,15 @@ class HistoryCrawler:
         self.target_users = self.get_target_users()
         all_tasks = []
         anchor = 0
+        limit = 200
         for user_id, max_id in self.target_users:
             api, auth = self.api_list[anchor]
             anchor = (anchor + 1) % len(self.api_list)
             all_tasks.append(self.pool.submit(self.craw_timeline, user_id, api, auth, max_id))
         
-        for job in futures.as_completed(all_tasks):
-            del all_tasks[job]
-            gc.collect()
+            if len(all_tasks) > limit:
+                wait(all_tasks)
+                del all_tasks[:]
 
 
     def createDoc(self, data):
