@@ -29,6 +29,12 @@
             "consumer_secret": "nHVjenjb4ghQ8l3NvzthtnJgoNj6bCL39LpHOXfmGTmYdS5CfM",
             "access_token": "1257242963127590913-okHeFe2Hbgh1nVKSUJoLHYgoJgfpMS",
             "access_token_secret": "zlOKKYSPo2saEfntQsUzwvPnQxv8qV9LlFk7uvCQKA6uw"
+        },
+        "new1" :{
+            "consumer_key": "9yzZucgdrZ92SH9Sy1HC0kqRR",
+            "consumer_secret": "secret:YlCvDefeX61wsUAFpG8v6yeU8EJWAhuePQWutZoMGQ6iZt5L3j",
+            "access_token": "1257681698373775360-eDwFqLAycB1EWE42VMntCnMCA4djEU",
+            "access_token_secret": "H4u1GKTpluZHOVj5SRy0XgURuMtl7E7WV6TtoZk2v6QvP"
         }
     },
 

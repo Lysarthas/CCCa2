@@ -96,11 +96,8 @@ class HistoryCrawler:
                 time.sleep(15 * 60)
 
 ## api pool
-api1, auth1 = init_api('karun')
-api2, auth2 = init_api('jinyi')
-api3, auth3 = init_api('han')
-api4, auth4 = init_api('jkc')
-api_list = [(api1, auth1), (api2, auth2), (api3, auth3), (api4, auth4)]
+accounts = config.get('accounts')
+api_list = [init_api(name) for name in accounts]
 
 ## start date & end date
 start_date = datetime(2020, 1, 20, 0, 0, 0)
