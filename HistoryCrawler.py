@@ -90,7 +90,7 @@ class HistoryCrawler:
                 create_doc_count = self.date_filter(tmp_tweets, create_doc_count)
                 max_id = tmp_tweets[-1].id
                 time.sleep(1)
-                if tmp_tweets[-1].created_at > self.start_date:
+                if tmp_tweets[-1].created_at < self.start_date:
                     self.finished_users_db.create_document({'_id': user_id})
                     print("no more tweet")
                     break
