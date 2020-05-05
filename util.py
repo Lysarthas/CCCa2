@@ -36,7 +36,7 @@ def get_db_client(db_name: str = None):
                 connected = True
                 break
             except:
-                print("connect %s failed" % ip)
+                print("connect %s failed" % url)
         if not connected:
             print("cannot connect to db, exiting")
     else:
