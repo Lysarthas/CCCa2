@@ -4,6 +4,7 @@ import time
 import numpy as np
 from numpy.random import choice
 from datetime import datetime
+import threading
 
 class HistoryCrawler:
     def __init__(self, api_list, start_date, end_date):
@@ -96,8 +97,8 @@ class HistoryCrawler:
                 self.finished_users_db.create_document({'_id': user_id})
                 is_finished = True
             except tweepy.RateLimitError:
-                print('sleep')
-                time.sleep(15 * 60)
+                print('%s sleeping' % threading.get_ident() ,flush=True)
+                time.sleep(10 * 60)
 
 ## api pool
 api1, auth1 = init_api('karun')
