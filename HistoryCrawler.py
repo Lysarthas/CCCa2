@@ -3,6 +3,8 @@ from concurrent.futures import ThreadPoolExecutor, wait
 import time
 from datetime import datetime
 import threading
+from concurrent import futures
+import gc
 
 class HistoryCrawler:
     def __init__(self, api_list, start_date, end_date):
@@ -44,11 +46,15 @@ class HistoryCrawler:
             api, auth = self.api_list[anchor]
             anchor = (anchor + 1) % len(self.api_list)
             all_tasks.append(self.pool.submit(self.craw_timeline, user_id, api, auth, max_id))
-        wait(all_tasks)
+        
+        for job in futures.as_completed(all_tasks):
+            del all_tasks[job]
+            gc.collect()
+
 
     def createDoc(self, data):
         if str(data.id) in self.history_db: ## check duplicate
-            # print("duplicate")
+            print("duplicate")
             return
 
         place = getattr(data, 'place')
@@ -68,16 +74,17 @@ class HistoryCrawler:
             'place_type': place.place_type if place is not None else None
         }
         self.history_db.create_document(doc)
+        del doc
 
     def date_filter(self, tweets: list, create_doc_count: int):
         for status in tweets:
             if status.created_at < self.end_date and status.created_at > self.start_date:
                 self.createDoc(status)
                 create_doc_count += 1
-            # elif status.created_at > self.end_date:
-            #     print('%s too new' % status.created_at)
-            # else:
-            #     print('%s too old' % status.created_at)
+            elif status.created_at > self.end_date:
+                print('%s too new' % status.created_at)
+            else:
+                print('%s too old' % status.created_at)
 
         return create_doc_count
 
@@ -99,7 +106,9 @@ class HistoryCrawler:
                     self.finished_users_db.create_document({'_id': user_id})
                     print("enough tweet")
                     break
-
+                
+                del tmp_tweets[:]
+                del tmp_tweets
             except tweepy.RateLimitError:
                 print('%s sleeping' % threading.get_ident() ,flush=True)
                 time.sleep(15 * 60)
