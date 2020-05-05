@@ -31,7 +31,7 @@ def get_db_client(db_name: str = None):
         connected = False
         for ip in db_list:
             try:
-                url = 'http://%s:15984' % ip
+                url = 'http://%s' % ip
                 client = Cloudant(user, passwd, url=url, connect=True, auto_renew=True)
                 connected = True
                 break
