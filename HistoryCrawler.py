@@ -86,7 +86,7 @@ class HistoryCrawler:
                     time.sleep(1)
 
                 while (tmp_tweets and tmp_tweets[-1].created_at > self.start_date):
-                    tmp_tweets = api.user_timeline(user_id, count = 200, include_rts=True)
+                    tmp_tweets = api.user_timeline(user_id, count = 200, include_rts=True, max_id = max_id)
                     self.date_filter(tmp_tweets)
                     max_id = tmp_tweets[-1].id
                     time.sleep(1)
