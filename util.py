@@ -25,7 +25,7 @@ def get_db_client(db_name: str = None):
     user = db_config.get('user')
     passwd = db_config.get('password')
 
-    db_list = os.environ['dbip']
+    db_list = os.environ.get('dbip')
     if db_list:
         db_list = db_list.split(',')
         connected = False
