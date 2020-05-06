@@ -32,7 +32,7 @@
         },
         "new1" :{
             "consumer_key": "9yzZucgdrZ92SH9Sy1HC0kqRR",
-            "consumer_secret": "secret:YlCvDefeX61wsUAFpG8v6yeU8EJWAhuePQWutZoMGQ6iZt5L3j",
+            "consumer_secret": "YlCvDefeX61wsUAFpG8v6yeU8EJWAhuePQWutZoMGQ6iZt5L3j",
             "access_token": "1257681698373775360-eDwFqLAycB1EWE42VMntCnMCA4djEU",
             "access_token_secret": "H4u1GKTpluZHOVj5SRy0XgURuMtl7E7WV6TtoZk2v6QvP"
         }
@@ -46,7 +46,7 @@
     "db": {
         "user": "admin",
         "password": "admin12345",
-        "url": "http://127.0.0.1:25984",
+        "url": "http://127.0.0.1:5984",
         "db": "junlin"
     }
 }
