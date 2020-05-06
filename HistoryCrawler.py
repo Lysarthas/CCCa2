@@ -62,19 +62,14 @@ class HistoryCrawler:
 
     def createDoc(self, data):
         if str(data.id) in self.history_db: ## check duplicate
-            print("duplicate")
+            # print("duplicate")
             return
 
         place = getattr(data, 'place')
-
-        is_truncated = data.truncated
-        text = data.text
-        if is_truncated:
-            text = data.extended_tweet['full_text']
         doc = {
             '_id': str(data.id),
             'post_at': data.created_at.timestamp(),
-            'text': text,
+            'text': data.full_text,
             'json': data._json,
             'author': data.author.id,
             'place_name': place.name if place is not None else None,
@@ -89,10 +84,10 @@ class HistoryCrawler:
             if status.created_at < self.end_date and status.created_at > self.start_date:
                 self.createDoc(status)
                 create_doc_count += 1
-            elif status.created_at > self.end_date:
-                print('%s too new' % status.created_at)
-            else:
-                print('%s too old' % status.created_at)
+            # elif status.created_at > self.end_date:
+            #     print('%s too new' % status.created_at)
+            # else:
+            #     print('%s too old' % status.created_at)
 
         return create_doc_count
 
@@ -110,7 +105,7 @@ class HistoryCrawler:
 
         while True:
             try:
-                tmp_tweets = api.user_timeline(user_id, count = 200, include_rts=True, max_id = max_id)
+                tmp_tweets = api.user_timeline(user_id, count = 200, include_rts=True, max_id = max_id, tweet_mode="extended")
                 create_doc_count = self.date_filter(tmp_tweets, create_doc_count)
                 max_id = tmp_tweets[-1].id
 
@@ -124,6 +119,7 @@ class HistoryCrawler:
                     print("enough tweet")
                     break
 
+
                 self.update_finished_user(user_id, max_id)
                 
                 del tmp_tweets[:]
@@ -133,6 +129,12 @@ class HistoryCrawler:
             except tweepy.RateLimitError:
                 print('%s sleeping' % threading.get_ident() ,flush=True)
                 time.sleep(15 * 60)
+            except tweepy.TweepError as e:
+                print(e.message[0]['message'])
+                time.sleep(5)
+            except Exception as e:
+                print("Unexpected error:", str(e))
+                sys.exit(1)
 
 ## api pool
 accounts = config.get('accounts')
