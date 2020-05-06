@@ -46,6 +46,7 @@ class HistoryCrawler:
         all_tasks = []
         anchor = 0
         limit = 1000
+        count = 0
         for user_id, max_id in self.target_users:
             api, auth = self.api_list[anchor]
             anchor = (anchor + 1) % len(self.api_list)
@@ -54,6 +55,9 @@ class HistoryCrawler:
             if len(all_tasks) > limit:
                 wait(all_tasks)
                 del all_tasks[:]
+                count += limit
+                with open('progress', 'w') as f:
+                    f.write('progress: %d / %d' % (count, len(self.target_users)))
 
 
     def createDoc(self, data):
@@ -103,13 +107,14 @@ class HistoryCrawler:
     def craw_timeline(self, user_id, api, auth, max_id):
         user_id = str(user_id)
         create_doc_count = 0
+
         while True:
             try:
                 tmp_tweets = api.user_timeline(user_id, count = 200, include_rts=True, max_id = max_id)
                 create_doc_count = self.date_filter(tmp_tweets, create_doc_count)
                 max_id = tmp_tweets[-1].id
 
-                if tmp_tweets[-1].created_at < self.start_date:
+                if not tmp_tweets or len(tmp_tweets) < 10 or tmp_tweets[-1].created_at < self.start_date:
                     self.update_finished_user(user_id, None)
                     print("no more tweet")
                     break
@@ -124,10 +129,10 @@ class HistoryCrawler:
                 del tmp_tweets[:]
                 del tmp_tweets
 
-                time.sleep(1)
+                time.sleep(5)
             except tweepy.RateLimitError:
                 print('%s sleeping' % threading.get_ident() ,flush=True)
-                time.sleep(5 * 60)
+                time.sleep(15 * 60)
 
 ## api pool
 accounts = config.get('accounts')
