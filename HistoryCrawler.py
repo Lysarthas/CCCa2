@@ -123,11 +123,11 @@ class HistoryCrawler:
                 
                 del tmp_tweets[:]
                 del tmp_tweets
-                
+
                 time.sleep(1)
             except tweepy.RateLimitError:
                 print('%s sleeping' % threading.get_ident() ,flush=True)
-                time.sleep(15 * 60)
+                time.sleep(5 * 60)
 
 ## api pool
 accounts = config.get('accounts')
