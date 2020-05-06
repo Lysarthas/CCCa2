@@ -25,16 +25,19 @@ class HistoryCrawler:
         return [(row['key'], row['value']) for row in view_result['rows']]
 
     def get_finished_users(self):
-        all_docs = self.finished_users_db.all_docs()
-        return [int(row['key']) for row in all_docs['rows']]
+        all_docs = self.finished_users_db.all_docs(include_docs=True)
+        return dict([(int(row['key']), row['doc'].get('max_id')) for row in all_docs['rows']])
 
     def get_target_users(self):
         finished_users = self.get_finished_users()
+
         all_users = self.get_all_users()
         target_users = []
         for user, max_tweet_id in all_users:
-            if user not in finished_users:
+            if user not in finished_users.keys():
                 target_users.append((user, max_tweet_id))
+            elif finished_users.get(user) is not None:
+                target_users.append((user, min(max_tweet_id, finished_users[user])))
         return target_users
 
 
@@ -42,7 +45,7 @@ class HistoryCrawler:
         self.target_users = self.get_target_users()
         all_tasks = []
         anchor = 0
-        limit = 200
+        limit = 1000
         for user_id, max_id in self.target_users:
             api, auth = self.api_list[anchor]
             anchor = (anchor + 1) % len(self.api_list)
@@ -89,6 +92,14 @@ class HistoryCrawler:
 
         return create_doc_count
 
+    def update_finished_user(self, user_id: str, max_id: int):
+        if user_id in self.finished_users_db:
+            doc = self.finished_users_db[user_id]
+            doc['max_id'] = max_id
+            doc.save()
+        else:
+            self.finished_users_db.create_document({'_id': user_id, 'max_id': max_id})
+
     def craw_timeline(self, user_id, api, auth, max_id):
         user_id = str(user_id)
         create_doc_count = 0
@@ -98,13 +109,15 @@ class HistoryCrawler:
                 create_doc_count = self.date_filter(tmp_tweets, create_doc_count)
                 max_id = tmp_tweets[-1].id
                 time.sleep(1)
+
+                self.update_finished_user(user_id, max_id)
                 if tmp_tweets[-1].created_at < self.start_date:
-                    self.finished_users_db.create_document({'_id': user_id})
+                    self.update_finished_user(user_id, None)
                     print("no more tweet")
                     break
 
                 if create_doc_count > 200:
-                    self.finished_users_db.create_document({'_id': user_id})
+                    self.update_finished_user(user_id, None)
                     print("enough tweet")
                     break
                 
