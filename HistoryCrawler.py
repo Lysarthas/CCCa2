@@ -108,9 +108,7 @@ class HistoryCrawler:
                 tmp_tweets = api.user_timeline(user_id, count = 200, include_rts=True, max_id = max_id)
                 create_doc_count = self.date_filter(tmp_tweets, create_doc_count)
                 max_id = tmp_tweets[-1].id
-                time.sleep(1)
 
-                self.update_finished_user(user_id, max_id)
                 if tmp_tweets[-1].created_at < self.start_date:
                     self.update_finished_user(user_id, None)
                     print("no more tweet")
@@ -120,9 +118,13 @@ class HistoryCrawler:
                     self.update_finished_user(user_id, None)
                     print("enough tweet")
                     break
+
+                self.update_finished_user(user_id, max_id)
                 
                 del tmp_tweets[:]
                 del tmp_tweets
+                
+                time.sleep(1)
             except tweepy.RateLimitError:
                 print('%s sleeping' % threading.get_ident() ,flush=True)
                 time.sleep(15 * 60)
