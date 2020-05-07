@@ -136,6 +136,8 @@ class HistoryCrawler:
                 print("Unexpected error:", str(e))
                 sys.exit(1)
 
+
+sys.stdout.flush()
 ## api pool
 accounts = config.get('accounts')
 api_list = [init_api(name) for name in accounts]
