@@ -135,6 +135,9 @@ class HistoryCrawler:
             except Exception as e:
                 print("Unexpected error:", str(e))
                 sys.exit(1)
+            except:
+                print("Unexpected error:", sys.exc_info()[0])
+                sys.exit(1)
 
 
 sys.stdout.flush()
