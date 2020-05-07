@@ -127,7 +127,7 @@ class HistoryCrawler:
 
                 time.sleep(5)
             except tweepy.RateLimitError:
-                print('%s sleeping' % threading.get_ident() ,flush=True)
+                print('%s sleeping' % threading.get_ident())
                 time.sleep(15 * 60)
             except tweepy.TweepError as e:
                 print(e.message[0]['message'])
@@ -138,9 +138,9 @@ class HistoryCrawler:
             except:
                 print("Unexpected error:", sys.exc_info()[0])
                 sys.exit(1)
+            finally:
+                sys.stdout.flush()
 
-
-sys.stdout.flush()
 ## api pool
 accounts = config.get('accounts')
 api_list = [init_api(name) for name in accounts]
