@@ -45,7 +45,7 @@ class HistoryCrawler:
         self.target_users = self.get_target_users()
         all_tasks = []
         anchor = 0
-        limit = 1000
+        limit = 500
         count = 0
         for user_id, max_id in self.target_users:
             api, auth = self.api_list[anchor]
@@ -133,10 +133,8 @@ class HistoryCrawler:
                 time.sleep(5)
             except Exception as e:
                 print("Unexpected error:", str(e))
-                sys.exit(1)
             except:
                 print("Unexpected error:", sys.exc_info()[0])
-                sys.exit(1)
             finally:
                 sys.stdout.flush()
 
