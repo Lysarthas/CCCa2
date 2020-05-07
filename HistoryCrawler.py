@@ -107,7 +107,6 @@ class HistoryCrawler:
             try:
                 tmp_tweets = api.user_timeline(user_id, count = 200, include_rts=True, max_id = max_id, tweet_mode="extended")
                 create_doc_count = self.date_filter(tmp_tweets, create_doc_count)
-                max_id = tmp_tweets[-1].id
 
                 if not tmp_tweets or len(tmp_tweets) < 10 or tmp_tweets[-1].created_at < self.start_date:
                     self.update_finished_user(user_id, None)
@@ -119,7 +118,7 @@ class HistoryCrawler:
                     print("enough tweet")
                     break
 
-
+                max_id = tmp_tweets[-1].id
                 self.update_finished_user(user_id, max_id)
                 
                 del tmp_tweets[:]
