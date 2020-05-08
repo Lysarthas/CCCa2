@@ -56,6 +56,7 @@ class HistoryCrawler:
                 wait(all_tasks)
                 del all_tasks[:]
                 count += limit
+                gc.collect()
                 with open('progress', 'w') as f:
                     f.write('progress: %d / %d' % (count, len(self.target_users)))
 
