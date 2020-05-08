@@ -1,5 +1,3 @@
 __pycache__/
 .vscode/
-DockerFile
-entrypoint.sh
 supervisord.conf
