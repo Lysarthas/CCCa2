@@ -114,7 +114,7 @@ class HistoryCrawler:
                     print("no more tweet")
                     break
 
-                if create_doc_count > 200:
+                if create_doc_count > 400:
                     self.update_finished_user(user_id, None)
                     print("enough tweet")
                     break
@@ -144,7 +144,7 @@ accounts = config.get('accounts')
 api_list = [init_api(name) for name in accounts]
 
 ## start date & end date
-start_date = datetime(2020, 1, 20, 0, 0, 0)
+start_date = datetime(2020, 1, 10, 0, 0, 0)
 end_date = datetime(2020, 5, 1, 0, 0, 0)
 
 hc = HistoryCrawler(api_list, start_date, end_date)
