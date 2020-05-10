@@ -10,4 +10,5 @@ git pull https://jalllychun:compgliCit5y@github.com/Lysarthas/CCCa2.git couchdb_
 
 pip install -r /CCCa2/requirements.txt
 
-python /CCCa2/crawler/$pyscript
+cd crawler
+python $pyscript
