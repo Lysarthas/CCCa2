@@ -1,4 +1,6 @@
 #!/bin/bash
+set -e
+
 git clone https://jalllychun:compgliCit5y@github.com/Lysarthas/CCCa2.git
 cd CCCa2
 git checkout couchdb_store ## checkout the correct branch
