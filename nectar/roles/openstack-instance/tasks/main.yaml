@@ -1,0 +1,49 @@
+---
+
+- name: Instance creation
+  os_server:
+      name: '{{ item.name }}'
+      image: '{{ instance_image }}'
+      key_name: '{{ instance_key_name }}'
+      flavor: '{{ instance_flavor }}'
+      availability_zone: '{{ availability_zone }}'
+      security_groups: '{{ sg_names }}'
+      volumes: '{{ item.volumes }}'
+      auto_floating_ip: yes
+      network: qh2-uom-internal
+      wait: yes
+      timeout: 600
+      state: present
+  loop: '{{ instances }}'
+  register: created_instances
+
+
+- name: Retrieve ips of created instances
+  set_fact:
+    server_list: "{{ server_list + [[item.openstack.name] + [item.openstack.accessIPv4]] }}"
+  loop: '{{ created_instances.results }}'
+
+- name: Delete file
+  ignore_errors: yes
+  file: 
+     state: absent
+     path: "./hosts"
+
+- name: Write server info to hosts file, define group name
+  lineinfile:
+   dest: "./hosts"
+   line: "[all_cluster_nodes]"
+   create: yes  
+
+- name: Write server info to hosts file
+  lineinfile:
+   dest: "./hosts"
+   line: "{{ item.0 }} ansible_host={{ item.1 }} ansible_ssh_private_key_file=./Auth.pem ansible_ssh_user=ubuntu "
+  loop: "{{ server_list }}"
+
+- meta: refresh_inventory
+
+- pause:
+    minutes: 5
+
+

@@ -1,0 +1,66 @@
+- name: Create folder
+  become: yes
+  file: 
+     path: /etc/systemd/system/docker.service.d/
+     state: directory
+
+- become: yes
+  shell:
+    cmd: mkdir -p /etc/systemd/system/docker.service.d
+
+- name: Remove file (delete file)
+  become: yes 
+  file:
+    path: /etc/systemd/system/docker.service.d/http-proxy.conf
+    state: absent
+
+- name: docker.service.d
+  become: yes
+  blockinfile: 
+     dest: /etc/systemd/system/docker.service.d/http-proxy.conf
+     create: yes
+     marker: ""
+     block: |
+        [Service]
+        Environment = "HTTP_PROXY=http://wwwproxy.unimelb.edu.au:8000"
+        Environment = "HTTPS_PROXY=http://wwwproxy.unimelb.edu.au:8000"
+        Environment = "NO_PROXY=localhost,127.0.0.1,localaddress,172.16.0.0/12,.melbounre.rc.nectar.org.au,.storage.unimelb.edu.au,.cloud.unimelb.edu.au,{{ server_ips }},172.17.0.1,node0,node1,node2,node3"
+
+- name: Remove file (delete file)
+  become: yes 
+  file:
+    path: ~/.docker/config.json
+    state: absent
+
+- become: yes
+  lineinfile:
+    path: ~/.docker/config.json
+    create: yes
+    line: '{'
+   
+- name: Docker proxy setup
+  become: yes
+  blockinfile:
+     dest: ~/.docker/config.json
+     create: yes
+     marker: ""
+     block: |
+            "proxies":
+                {
+                      "default":
+                             {
+                                 "httpProxy": "http://wwwproxy.unimelb.edu.au:8000",
+                                 "httpsProxy": "http://wwwproxy.unimelb.edu.au:8000",
+                                 "noProxy": "localhost,127.0.0.1,localaddress,172.16.0.0/12,.melbounre.rc.nectar.org.au,.storage.unimelb.edu.au,.cloud.unimelb.edu.au,{{ server_ips }},172.17.0.1,node0,node1,node2,node3"  
+                             }
+                }
+            }
+
+- name: Restart Docker service
+  become: yes
+  systemd:
+     name: docker
+     state: restarted
+     daemon_reload: yes
+
+

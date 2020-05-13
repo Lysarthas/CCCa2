@@ -1,0 +1,22 @@
+- name: Create a ext4 filesystem on /dev/vdb
+  become: yes
+  filesystem:
+    force: yes
+    fstype: ext4
+    dev: 
+    - /dev/vdb
+
+- name: Create a ext4 filesystem on /dev/vdf
+  become: yes
+  filesystem:
+    fstype: ext4
+    dev: /dev/vdc
+  when: hostvars[inventory_hostname]['ansible_default_ipv4']['address'] == hostvars[groups['all_cluster_nodes'][0]]['ansible_default_ipv4']['address']
+
+
+- name: create temp file
+  become: yes
+  file:
+    path: /temp_file
+    state: directory
+

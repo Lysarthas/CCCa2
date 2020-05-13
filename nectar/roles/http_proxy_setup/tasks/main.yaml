@@ -1,0 +1,40 @@
+- set_fact: 
+     server_ips: "{{ hostvars[groups['all_cluster_nodes'][0]]['ansible_default_ipv4']['address'] }}"
+
+- set_fact:
+     server_ips: "{{ server_ips + ',' + hostvars[groups['all_cluster_nodes'][item]]['ansible_default_ipv4']['address'] }}"
+  loop: "{{ range(1,instances|length)|list }}"
+
+- debug: var=server_ips
+
+- name: Remove file (delete file)
+  become: yes 
+  file:
+    path: /etc/systemd/system/docker.service.d/http-proxy.conf
+    state: absent
+
+- name: Add proxy file
+  become: yes
+  blockinfile:
+     dest: /etc/environment
+     create: yes
+     marker: ""
+     block: |
+        HTTP_PROXY=http://wwwproxy.unimelb.edu.au:8000/
+        HTTPS_PROXY=http://wwwproxy.unimelb.edu.au:8000/    
+        http_proxy=http://wwwproxy.unimelb.edu.au:8000/
+        https_proxy=http://wwwproxy.unimelb.edu.au:8000/ 
+        no_proxy=localhost,127.0.0.1,localaddress,172.16.0.0/12,.melbounre.rc.nectar.org.au,.storage.unimelb.edu.au,.cloud.unimelb.edu.au,{{ server_ips }},172.17.0.1,node0,node1,node2,node3
+         
+- name: Reboot machines
+  become: yes
+  reboot:
+    reboot_timeout: 600
+
+     
+
+  
+
+
+
+

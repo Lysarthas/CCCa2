@@ -1,0 +1,69 @@
+availability_zone: melbourne-qh2-uom
+
+volumes:
+  - vol_name: db_1
+    vol_size: 40
+
+  - vol_name: db_2
+    vol_size: 40
+
+  - vol_name: db_3
+    vol_size: 40
+  
+  - vol_name: db_4
+    vol_size: 40
+
+  - vol_name: persistent
+    vol_size: 90
+
+
+
+
+security_groups:  
+  - name: ssh
+    description: "ssh"
+    protocol: tcp
+    port_range_min: 22
+    port_range_max: 22
+    remote_ip_prefix: 0.0.0.0/0
+
+  - name: http
+    description: "http"
+    protocol: tcp
+    port_range_min: 80
+    port_range_max: 80
+    remote_ip_prefix: 0.0.0.0/0
+
+instances: 
+  - name: server1 
+    volumes: 
+    - db_1
+    - persistent
+    description: server1
+  - name: server2
+    volumes:
+    - db_2
+    description: server2
+  - name: server3
+    volumes:
+    - db_3
+    description: server3
+  - name: server4
+    volumes:
+    - db_4
+    description: server4
+
+
+instance_image: 45225edb-66d8-4fd0-bf41-132a31a18166
+instance_key_name: Auth 
+instance_flavor: uom.mse.2c9g
+
+server_list: []
+db_ports: [5984, 4369]
+db_ports_rand: [2000]
+
+
+volume_ids: []
+
+couch_usr: shibachan
+couch_pwd: MuchWOWSuchAmAzE

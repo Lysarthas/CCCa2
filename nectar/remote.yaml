@@ -1,0 +1,16 @@
+- hosts: all_cluster_nodes
+  vars_files:
+      - host_vars/nectar.yaml
+  vars:
+     ansible_python_interpreter: /usr/bin/python3
+     ansible_user: ubuntu
+     ansible_ssh_common_args: '-o StrictHostKeyChecking=no'
+  
+  roles:
+     - role: http_proxy_setup
+     - role: docker_installation
+     - role: docker_proxy
+     - role: volume_mounting
+     - role: couchdb_cluster
+
+
