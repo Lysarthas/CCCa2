@@ -4,7 +4,6 @@ services:
     couch_db_1:
         image: couchdb:latest
         restart: always
-        endpoint_mode: dnsrr 
         volumes:
             - /home/ubuntu/volume/node1/data:/opt/couchdb/data
             - /home/ubuntu/volume/node1/local.d:/opt/couchdb/etc/local.d
@@ -15,11 +14,11 @@ services:
                   - couch_db_1.test.com
         deploy:
             replicas: 1
+            endpoint_mode: dnsrr 
 
     couch_db_2:
         image: couchdb:latest
         restart: always
-        endpoint_mode: dnsrr 
         volumes:
             - /home/ubuntu/volume/node2/data:/opt/couchdb/data
             - /home/ubuntu/volume/node2/local.d:/opt/couchdb/etc/local.d
@@ -30,11 +29,11 @@ services:
                   - couch_db_2.test.com
         deploy:
             replicas: 1
+            endpoint_mode: dnsrr 
 
     couch_db_3:
         image: couchdb:latest
         restart: always
-        endpoint_mode: dnsrr 
         volumes:
             - /home/ubuntu/volume/node3/data:/opt/couchdb/data
             - /home/ubuntu/volume/node3/local.d:/opt/couchdb/etc/local.d
@@ -45,12 +44,12 @@ services:
                   - couch_db_3.test.com
         deploy:
             replicas: 1
+            endpoint_mode: dnsrr 
 
 
     couch_db_4:
         image: couchdb:latest
         restart: always
-        endpoint_mode: dnsrr 
         volumes:
             - /home/ubuntu/volume/node4/data:/opt/couchdb/data
             - /home/ubuntu/volume/node4/local.d:/opt/couchdb/etc/local.d
@@ -61,6 +60,7 @@ services:
                   - couch_db_4.test.com
         deploy:
             replicas: 1
+            endpoint_mode: dnsrr 
 
     haproxy:
         image: haproxy:1.7-alpine
@@ -76,5 +76,4 @@ services:
 
 networks:
   default:
-    external:
-      name: couchdb_network
+    driver: overlay
