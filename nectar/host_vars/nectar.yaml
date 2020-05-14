@@ -1,0 +1,110 @@
+availability_zone: melbourne-qh2-uom
+
+volumes:
+  - vol_name: db_1
+    vol_size: 40
+
+  - vol_name: db_2
+    vol_size: 40
+
+  - vol_name: db_3
+    vol_size: 40
+  
+  - vol_name: db_4
+    vol_size: 40
+
+  - vol_name: persistent
+    vol_size: 90
+
+
+
+
+security_groups:  
+  - name: ssh
+    description: "ssh"
+    protocol: tcp
+    port_range_min: 22
+    port_range_max: 22
+    remote_ip_prefix: 0.0.0.0/0
+
+  - name: http
+    description: "http"
+    protocol: tcp
+    port_range_min: 80
+    port_range_max: 80
+    remote_ip_prefix: 0.0.0.0/0
+
+  - name: docker_swarm
+    description: "docker swarm"
+    protocol: tcp
+    port_range_min: 2377
+    port_range_max: 2377
+    remote_ip_prefix: 0.0.0.0/0
+
+  - name: docker_swarm
+    description: "docker swarm"
+    protocol: tcp
+    port_range_min: 7946
+    port_range_max: 7946
+    remote_ip_prefix: 0.0.0.0/0
+
+  - name: docker_swarm
+    description: "docker swarm"
+    protocol: udp
+    port_range_min: 7946
+    port_range_max: 7946
+    remote_ip_prefix: 0.0.0.0/0
+
+  - name: docker_swarm
+    description: "docker swarm"
+    protocol: udp
+    port_range_min: 4789
+    port_range_max: 4789
+    remote_ip_prefix: 0.0.0.0/0
+
+
+instances: 
+  - name: server1 
+    volumes: 
+    - db_1
+    - persistent
+    description: server1
+  - name: server2
+    volumes:
+    - db_2
+    description: server2
+  - name: server3
+    volumes:
+    - db_3
+    description: server3
+  - name: server4
+    volumes:
+    - db_4
+    description: server4
+
+
+instance_image: 45225edb-66d8-4fd0-bf41-132a31a18166
+instance_key_name: Auth 
+instance_flavor: uom.mse.2c9g
+
+server_list: []
+db_ports: [5984, 4369]
+db_ports_rand: [2000]
+cookie: monster
+
+volume_ids: []
+
+couch_usr: shibachan
+couch_pwd: MuchWOWSuchAmAzE
+
+volume_path: /volume
+backup_path: /backup
+docker_swarm_ports:
+  - port: 2377
+    protocol: tcp
+  - port: 7946
+    protocol: tcp
+  - port: 7946
+    protocol: udp
+  - port: 4789
+    protocol: udp

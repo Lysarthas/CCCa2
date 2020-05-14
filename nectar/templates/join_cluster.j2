@@ -1,0 +1,9 @@
+
+
+sleep 5s
+
+curl -sX POST -H "Content-Type: application/json" http://{{couch_usr}}:{{couch_pwd}}@{{node1_domain}}:5984/_cluster_setup -d '{"action": "enable_cluster", "bind_address":"0.0.0.0", "username": "{{couch_usr}}", "password":"{{couch_pwd}}", "port": 5984, "node_count": "4","remote_node": "{{node_domain}}", "remote_current_user": "{{couch_usr}}", "remote_current_password": "{{couch_pwd}}" }'
+
+sleep 5s
+
+curl -sX POST -H "Content-Type: application/json" http://{{couch_usr}}:{{couch_pwd}}@{{node1_domain}}:5984/_cluster_setup -d '{"action": "add_node", "host":"{{node_domain}}", "port": 5984, "username": "{{couch_usr}}", "password":"{{couch_pwd}}"}'

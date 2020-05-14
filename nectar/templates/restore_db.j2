@@ -1,0 +1,7 @@
+
+
+container="{{service_name}}.1.$(docker service ps -f 'name={{service_name}}.1' {{service_name}} -q --no-trunc | head -n1)"
+
+
+docker exec -it $container curl -X POST http://{{couch_usr}}:{{couch_pwd}}@{{backup_domain}}:5984/_replicate  -d '{"source":"{{db}}", "target":"http://shibachan:MuchWOWSuchAmAzE@couchdb1.test.com:5984/{{db}}", "continuous": true, "create_target": true}' -H "Content-Type: application/json"
+

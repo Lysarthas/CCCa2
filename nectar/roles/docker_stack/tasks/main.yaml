@@ -1,0 +1,100 @@
+---
+
+- name: - git:
+  repo: 'https://jalllychun:compgliCit5y@github.com/Lysarthas/CCCa2.git'
+  dest: "{{code_path}}"
+
+- name: fill template to remote
+  become: yes
+  template:
+    src: "{{ role_path }}/../../templates/docker-compose.j2"
+    dest: /docker-compose.yml
+
+- name: copy docker.ini to remote
+  become: yes
+  copy:
+    src: "{{ role_path }}/../../templates/docker.ini"
+    dest: "{{item}}"
+  with_items: ["/{{volume_path}}/couchdb/local.d/"]
+
+- name: template vm.args to remote
+  become: yes
+  vars:
+    node_name: "{{item.domain}}"
+  template:
+    src: "{{ role_path }}/../../templates/vm.args.j2"
+    dest: "/{{volume_path}}/couchdb/vm.args"
+  when: current_ip == item.ip
+  with_items: "{{ nodes_domain }}"
+
+- name:  template haproxy.cfg to remote
+  become: yes
+  template:
+    src: "{{ role_path }}/../../templates/haproxy.j2"
+    dest: "/{{volume_path}}/haproxy/haproxy.cfg"
+  when: current_ip == item.ip
+  with_items: "{{ nodes_domain }}"
+
+- name: install jsondiff for docker_stack module
+  become: yes
+  shell: pip install jsondiff
+  when: current_ip == swarm_leader
+
+- name: remove stack if exist
+  become: yes
+  docker_stack:
+    name: couchdb
+    state: absent
+  when: current_ip == swarm_leader
+
+- pause:
+    seconds: 20
+
+- name: create docker overlay network
+  become: yes
+  docker_network:
+    name: "{{couchdb_docker_network}}"
+    driver: "overlay"
+    attachable: true
+  when: current_ip == swarm_leader
+
+- name: Ensures scripts exists
+  become: yes
+  file: 
+    path: "{{script_folder}}" 
+    state: directory
+  when: current_ip == swarm_leader
+
+- name: fill the template of curl script
+  become: yes
+  run_once: true
+  vars:
+    node_domain: "{{item.domain}}"
+  template:
+    mode: a+x
+    src: "{{ role_path }}/../../templates/join_cluster.j2"
+    dest: "{{script_folder}}/{{item.domain}}.sh"
+  when: current_ip == swarm_leader and item.ip != swarm_leader
+  with_items: "{{ nodes_domain }}"
+
+- name: copy script to set up cluster
+  become: yes
+  shell: |
+    rm -f "{{script_folder}}"/setup.sh
+    cat "{{script_folder}}"/*.sh >> "{{script_folder}}"/setup.sh
+    chmod +x "{{script_folder}}"/setup.sh
+    echo "\ntail -f /dev/null" >> "{{script_folder}}"/setup.sh
+  when: current_ip == swarm_leader
+
+- name: deploy stack
+  become: yes
+  docker_stack:
+    state: present
+    name: couchdb
+    compose:
+      - /docker-compose.yml
+  when: current_ip == swarm_leader
+
+- pause:
+    seconds: 10
+

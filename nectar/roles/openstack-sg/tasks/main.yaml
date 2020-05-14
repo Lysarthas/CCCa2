@@ -1,0 +1,60 @@
+---
+
+
+- name: Create a security group
+  os_security_group:
+    name: '{{ item.name }}'
+    description: '{{ item.description }}'
+    state: present
+  loop: '{{ security_groups }}'
+
+- name: Create sg for couchdb_cluster
+  os_security_group:
+    name: "couchdb_cluster"
+    description: "Interconnect VMs running couchdb in cluster mode with prescribed ports open"
+    state: present
+
+- name: Create a list of sg names to feed into openstack API
+  set_fact:
+    sg_names: '{{ sg_names|default([]) + [ item.name ] }}'
+  loop: '{{ security_groups }}'
+
+- name: Append sg name "couchdb_cluster" to sg list "sg_names"
+  set_fact:
+    sg_names: '{{ sg_names + ["couchdb_cluster"] }}'
+
+- name: Create rules for each security group
+  os_security_group_rule:
+    security_group: '{{ item.name }}'
+    protocol: '{{ item.protocol }}'
+    port_range_min: '{{ item.port_range_min }}'
+    port_range_max: '{{ item.port_range_max }}'
+    remote_ip_prefix: '{{ item.remote_ip_prefix }}'
+    state: present
+  loop: '{{ security_groups }}'
+
+- name: Determine min and max ip
+  set_fact:
+    db_ports_rand: '{{ db_ports_rand + [ 1999 + instances|length ] }}'
+
+- name: Create rules for couchdb_cluster
+  os_security_group_rule:
+    security_group: "couchdb_cluster"
+    protocol: tcp
+    port_range_min: '{{ item }}'
+    port_range_max: '{{ item }}'
+    remote_group: "couchdb_cluster"
+    state: present
+  loop: '{{ db_ports }}'
+
+- name: Create rules for couchdb_cluster, random ports
+  os_security_group_rule:
+    security_group: "couchdb_cluster"
+    protocol: tcp
+    port_range_min: '{{ db_ports_rand.0 }}'
+    port_range_max: '{{ db_ports_rand.1 }}'
+    remote_group: "couchdb_cluster"
+    state: present
+
+
+

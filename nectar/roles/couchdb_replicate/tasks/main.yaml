@@ -1,0 +1,52 @@
+---
+
+- name: pause to wait for cluster init
+  pause:
+    minutes: 2
+  when: db_action in ["restore", "backup"] and current_ip == swarm_leader
+
+- name: restore db
+  become: yes
+  block:
+    - name: create restore script
+      copy:
+        content: ""
+        mode: a+x
+        dest: /resotre.sh
+        force: yes
+    - name: fill the restore script
+      vars:
+        db: "{{item}}"
+        service_name: couchdb_curl_service
+      blockinfile:
+        dest: /resotre.sh
+        block: "{{ lookup('template', '{{ role_path }}/../../templates/restore_db.j2') }}"
+        marker: "# END ANSIBLE MANAGED BLOCK"
+      with_items: ['junlin', 'finished_users', 'history']
+    - name: run the script
+      shell: |
+        bash /resotre.sh
+  when: db_action == "restore" and current_ip == swarm_leader
+
+- name: backup db
+  become: yes
+  block:
+    - name: create backup script
+      copy:
+        content: ""
+        mode: a+x
+        dest: /backup.sh
+        force: yes
+    - name: fill the backup script
+      vars:
+        db: "{{item}}"
+        service_name: couchdb_curl_service
+      blockinfile:
+        dest: /backup.sh
+        block: "{{ lookup('template', '{{ role_path }}/../../templates/backup_db.j2') }}"
+        marker: "# END ANSIBLE MANAGED BLOCK"
+      with_items: ['junlin', 'finished_users', 'history']
+    - name: run the backup script
+      shell: |
+        bash /backup.sh
+  when: db_action == "backup" and current_ip == swarm_leader

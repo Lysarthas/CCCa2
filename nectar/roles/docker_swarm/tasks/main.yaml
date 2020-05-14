@@ -1,0 +1,53 @@
+---
+- set_fact: swarm_leader={{hostvars[groups['all_cluster_nodes'][0]]['ansible_default_ipv4']['address']}} swarm_mangers="[ '{{hostvars[groups['all_cluster_nodes'][1]]['ansible_default_ipv4']['address']}}']" swarm_workers="[ '{{hostvars[groups['all_cluster_nodes'][2]]['ansible_default_ipv4']['address']}}', '{{hostvars[groups['all_cluster_nodes'][3]]['ansible_default_ipv4']['address']}}']"
+
+- name: set server1 to manger and leader
+  become: yes
+  docker_swarm:
+    state: present
+    advertise_addr: "{{ current_ip }}:2377"
+  run_once: true
+  register: result
+  when: current_ip == swarm_leader
+
+- name: grep manager token
+  become: yes
+  shell: docker swarm join-token manager -q
+  register: manager_token
+  when: current_ip == swarm_leader
+
+- name: grep worker token
+  become: yes
+  shell: docker swarm join-token worker -q
+  register: worker_token
+  when: current_ip == swarm_leader
+
+- set_fact: manager_token={{hostvars[groups['all_cluster_nodes'][0]].manager_token.stdout_lines[0]}} worker_token={{hostvars[groups['all_cluster_nodes'][0]].worker_token.stdout_lines[0]}}
+
+# - debug: var=manager_token
+
+- name: leave swarm cluster if already in one 
+  become: yes
+  shell: if [[ "$(docker info --format '{{ '{{' }}.Swarm.LocalNodeState{{ '}}' }}')" ==  "active" ]]; then docker swarm leave -f; fi
+  when: current_ip in swarm_mangers or current_ip in swarm_workers
+
+
+- name: set server2 to manger and leader
+  become: yes
+  docker_swarm:
+    state: join
+    advertise_addr: "{{ current_ip }}:2377"
+    join_token: "{{manager_token}}"
+    remote_addrs: [ "{{swarm_leader}}" ]
+  register: result
+  when: current_ip in swarm_mangers
+
+- name: set other server  to worker
+  become: yes
+  docker_swarm:
+    state: join
+    advertise_addr: "{{ current_ip }}:2377"
+    join_token: "{{worker_token}}"
+    remote_addrs: [ "{{swarm_leader}}" ]
+  register: result
+  when: current_ip in swarm_workers

@@ -1,0 +1,9 @@
+---
+
+- name: Modify hostname
+  become: yes
+  lineinfile:
+     path: /etc/hosts
+     insertbefore : BOF
+     line:  "{{ hostvars[groups['all_cluster_nodes'][item]]['ansible_default_ipv4']['address'] }} node{{ item }}" 
+  loop: '{{ range(0, instances|length)|list }}'

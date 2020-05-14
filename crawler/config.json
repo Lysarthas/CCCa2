@@ -1,0 +1,53 @@
+{
+    "accounts": {
+        "mls": {
+            "consumer_key": "ztjxHkfm0bHRqntvevUcuIKNh",
+            "consumer_secret": "34EbRodhnIzwpFmNfVVO2DCJ8DBXzDBL1SYi3XEN2Y117gdrIA",
+            "access_token": "2977927747-mD8HKaNpQ1yiKApCvtXD76ha8sLGY7GhH0jg6zo",
+            "access_token_secret": "daBbTMOGnyhulDuEc2mz0gzN6lQnByjR4xrY1w93pXuQP"
+        },
+        "karun": {
+            "consumer_key": "cGrAaG5mkE6t4wnBbcUJ3PlrY",
+            "consumer_secret": "m95G2ZzDoW45aQaK1KajBjYZBETtcWeJBkWNcuCoUgPJMbrWe4",
+            "access_token": "1170264592410267648-eeYlYJuUBfcd1B0fsm0EibgrCYnSMM",
+            "access_token_secret": "tPq5g4FWN4xNxTyPANWdprpU4jeKBrmist2kniM5jXdmn"
+        },
+        "jinyi": {
+            "consumer_key": "k1LMgSuqBpj7B8mUfRn2nyVwr",
+            "consumer_secret": "eIIUUZlo0sUYrX6GsxkGMTCnR96mlzxffPd1oVynGm5uHGkN2e",
+            "access_token": "1101082112487092224-CvTx236IB4pYBNx1hGW9lMX5OGaj1N",
+            "access_token_secret": "M1NKh9O3ZHurGoZmStGlEMWbguz5IqOkQQHdUZWnlC0qx"
+        },
+        "han": {
+            "consumer_key": "p4QkPLyddFt6GvGiHWh91LHXz",
+            "consumer_secret": "gfETnCTjWzZ8Ak6GXJ4qdXyHJeLAxeMkkp4aNdMeGMcAHUUjWT",
+            "access_token": "1257018585995591681-prbvPhsrVtmqcCvehSvrHMblgKb4l5",
+            "access_token_secret": "9yRQy92e1NlG8vNYJpGDKymj4uV7ICWdsWZR6CtwWoSbA"
+        },
+        "jkc": {
+            "consumer_key": "q9kmiOFBMq6GTG6KuXZ0ZAPZm",
+            "consumer_secret": "nHVjenjb4ghQ8l3NvzthtnJgoNj6bCL39LpHOXfmGTmYdS5CfM",
+            "access_token": "1257242963127590913-okHeFe2Hbgh1nVKSUJoLHYgoJgfpMS",
+            "access_token_secret": "zlOKKYSPo2saEfntQsUzwvPnQxv8qV9LlFk7uvCQKA6uw"
+        },
+        "new1" :{
+            "consumer_key": "9yzZucgdrZ92SH9Sy1HC0kqRR",
+            "consumer_secret": "YlCvDefeX61wsUAFpG8v6yeU8EJWAhuePQWutZoMGQ6iZt5L3j",
+            "access_token": "1257681698373775360-eDwFqLAycB1EWE42VMntCnMCA4djEU",
+            "access_token_secret": "H4u1GKTpluZHOVj5SRy0XgURuMtl7E7WV6TtoZk2v6QvP"
+        }
+    },
+
+    "target_location": {
+        "melbourne": [[-38.465387, 144.566830],[-37.517320, 145.401791]],
+        "australia": [[-45.134095, 109.041799], [-11.585642, 153.162890]]
+    },
+
+    "db": {
+        "user": "shibachan",
+        "password": "MuchWOWSuchAmAzE",
+        "url": "http://127.0.0.1:5984",
+        "db": "junlin"
+    }
+}
+
