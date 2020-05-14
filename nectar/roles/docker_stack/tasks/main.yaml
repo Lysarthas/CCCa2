@@ -1,8 +1,10 @@
 ---
 
-- name: - git:
-  repo: 'https://jalllychun:compgliCit5y@github.com/Lysarthas/CCCa2.git'
-  dest: "{{code_path}}"
+- name: git clone
+  git:
+    repo: 'https://jalllychun:compgliCit5y@github.com/Lysarthas/CCCa2.git'
+    dest: "{{code_path}}"
+    version: "{{code_version}}"
 
 - name: fill template to remote
   become: yes

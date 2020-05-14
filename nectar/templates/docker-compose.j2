@@ -91,14 +91,26 @@ services:
         image: harvester
         build: {{harvester_image_build_path}}
         restart: on-failure
+        depends_on:
+            - couch_db_1
+            - couch_db_2
+            - couch_db_3
+            - couch_db_4
+            - haproxy
         environment:
             - pyscript=HistoryCrawler.py
             - dbip=haproxy
     
     stream_harvester:
         image: harvester
-        restart: on-failure
         build: {{harvester_image_build_path}}
+        restart: on-failure
+        depends_on:
+            - couch_db_1
+            - couch_db_2
+            - couch_db_3
+            - couch_db_4
+            - haproxy
         environment:
             - pyscript=StreamToCouchDB.py
             - dbip=haproxy
