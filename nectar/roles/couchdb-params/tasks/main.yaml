@@ -1,0 +1,26 @@
+---
+
+- name: Create vm.args, set name
+  lineinfile:
+   dest: "./couchdb_config/{{ item.0 }}_vm.args"
+   line: "-name couchdb@{{ item.1 }}"
+   create: yes
+  loop: "{{ server_list }}"
+
+- name: Set cookies setting
+  lineinfile:
+   dest: "./couchdb_config/{{ item.0 }}_vm.args"
+   line: "-setcookie monster"
+  loop: "{{ server_list }}"
+
+- name: Fix the random port used by couchdb cluster. Min
+  lineinfile:
+   dest: "./couchdb_config/{{ item.0 }}_vm.args"
+   line: "-kernel inet_dist_listen_min {{ db_ports_rand.0 }}"
+  loop: "{{ server_list }}"
+
+- name: Fix the random port used by couchdb cluster. Max
+  lineinfile:
+   dest: "./couchdb_config/{{ item.0 }}_vm.args"
+   line: "-kernel inet_dist_listen_max {{ db_ports_rand.1 }}"
+  loop: "{{ server_list }}"

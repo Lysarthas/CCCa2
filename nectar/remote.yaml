@@ -1,0 +1,47 @@
+- hosts: all_cluster_nodes
+  vars_files:
+      - host_vars/nectar.yaml
+  vars:
+      ansible_python_interpreter: /usr/bin/python3
+      ansible_user: ubuntu
+      ansible_ssh_common_args: '-o StrictHostKeyChecking=no'
+      current_ip: "{{hostvars[inventory_hostname]['ansible_default_ipv4']['address']}}"
+      node1_domain: 'couchdb1.test.com'
+      node2_domain: 'couchdb2.test.com'
+      node3_domain: 'couchdb3.test.com'
+      node4_domain: 'couchdb4.test.com'
+      backup_domain: 'backup.test.com'
+      nodes_domain:
+        - ip: "{{hostvars[groups['all_cluster_nodes'][0]]['ansible_default_ipv4']['address']}}"
+          domain: "{{node1_domain}}"
+        - ip: "{{hostvars[groups['all_cluster_nodes'][1]]['ansible_default_ipv4']['address']}}"
+          domain: "{{node2_domain}}"
+        - ip: "{{hostvars[groups['all_cluster_nodes'][2]]['ansible_default_ipv4']['address']}}"
+          domain: "{{node3_domain}}"
+        - ip: "{{hostvars[groups['all_cluster_nodes'][3]]['ansible_default_ipv4']['address']}}"
+          domain: "{{node4_domain}}"
+      swarm_leader: "{{hostvars[groups['all_cluster_nodes'][0]]['ansible_default_ipv4']['address']}}" 
+      swarm_mangers: "[ '{{hostvars[groups['all_cluster_nodes'][1]]['ansible_default_ipv4']['address']}}']" 
+      swarm_workers: "[ '{{hostvars[groups['all_cluster_nodes'][2]]['ansible_default_ipv4']['address']}}', '{{hostvars[groups['all_cluster_nodes'][3]]['ansible_default_ipv4']['address']}}']"
+      couchdb_docker_network: couchdb
+      script_folder: /scripts
+      code_path: /code
+      harvester_image_build_path: "{{code_path}}/docker_image"
+  
+  pre_tasks:
+    - set_fact:
+        action: restore
+
+  roles:
+    - role: volume_mounting
+    - role: http_proxy_setup
+    - role: docker_installation
+    - role: docker_proxy
+    - role: docker_swarm
+    - role: docker_stack
+    - role: couchdb_replicate
+   
+      
+   
+
+

@@ -1,0 +1,56 @@
+- name: Create a ext4 filesystem on /dev/vdb
+  become: yes
+  filesystem:
+    fstype: ext4
+    dev: /dev/vdb
+
+- name: Mount /dev/vdb
+  become: yes
+  mount:
+    path: /volume
+    src: /dev/vdb
+    fstype: ext4
+    state: mounted
+
+- name: create corresponding folder if not exists
+  become: yes
+  file:
+    path: /{{ volume_path }}/couchdb/{{ item }}
+    state: directory
+    mode: '0755'
+  with_items:
+    - ["data", "local.d"]
+
+- name: create haproxy folder if not exists
+  become: yes
+  file:
+    path: /{{ volume_path }}/haproxy
+    state: directory
+    mode: '0755'
+
+- name: Create a ext4 filesystem on /dev/vdc
+  become: yes
+  filesystem:
+    fstype: ext4
+    dev: /dev/vdc
+  when: hostvars[inventory_hostname]['ansible_default_ipv4']['address'] == hostvars[groups['all_cluster_nodes'][0]]['ansible_default_ipv4']['address']
+
+- name: Mount /dev/vdc
+  become: yes
+  mount:
+    path: /backup
+    src: /dev/vdc
+    fstype: ext4
+    state: mounted
+  when: hostvars[inventory_hostname]['ansible_default_ipv4']['address'] == hostvars[groups['all_cluster_nodes'][0]]['ansible_default_ipv4']['address']
+
+- name: create backup folder if not exists
+  become: yes
+  file:
+    path: /{{ backup_path }}/{{item}}
+    state: directory
+    mode: '0755'
+  with_items: ["data"]
+
+
+
