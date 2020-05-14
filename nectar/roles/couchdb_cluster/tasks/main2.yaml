@@ -115,7 +115,7 @@
   when: self_ip  == coordination_ip
 
 - pause:
-    minutes: 1
+    
 
 - name: Finish_cluster
   become: yes

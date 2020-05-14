@@ -34,6 +34,35 @@ security_groups:
     port_range_max: 80
     remote_ip_prefix: 0.0.0.0/0
 
+  - name: docker_swarm
+    description: "docker swarm"
+    protocol: tcp
+    port_range_min: 2377
+    port_range_max: 2377
+    remote_ip_prefix: 0.0.0.0/0
+
+  - name: docker_swarm
+    description: "docker swarm"
+    protocol: tcp
+    port_range_min: 7946
+    port_range_max: 7946
+    remote_ip_prefix: 0.0.0.0/0
+
+  - name: docker_swarm
+    description: "docker swarm"
+    protocol: udp
+    port_range_min: 7946
+    port_range_max: 7946
+    remote_ip_prefix: 0.0.0.0/0
+
+  - name: docker_swarm
+    description: "docker swarm"
+    protocol: udp
+    port_range_min: 4789
+    port_range_max: 4789
+    remote_ip_prefix: 0.0.0.0/0
+
+
 instances: 
   - name: server1 
     volumes: 
@@ -61,9 +90,21 @@ instance_flavor: uom.mse.2c9g
 server_list: []
 db_ports: [5984, 4369]
 db_ports_rand: [2000]
-
+cookie: monster
 
 volume_ids: []
 
 couch_usr: shibachan
 couch_pwd: MuchWOWSuchAmAzE
+
+volume_path: /volume
+backup_path: /backup
+docker_swarm_ports:
+  - port: 2377
+    protocol: tcp
+  - port: 7946
+    protocol: tcp
+  - port: 7946
+    protocol: udp
+  - port: 4789
+    protocol: udp

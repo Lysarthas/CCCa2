@@ -58,96 +58,93 @@
     cmd: docker volume create --opt type=ext4 --opt device=/dev/vdc vdc
   when: self_ip == hostvars[groups['all_cluster_nodes'][0]]['ansible_default_ipv4']['address']
 
-- set_fact:
-    temp: docker run --name backupdb -p 15984:5984 -v vdc:/opt/couchdb/data -e COUCHDB_USER={{ couch_usr }} -e COUCHDB_PASSWORD={{ couch_pwd }} couchdb:latest
+# - name: Create backup couchdb container
+#   become: yes
+#   shell:
+#     cmd: docker run --name backupdb -dit -p 15984:5984 -v vdc:/opt/couchdb/data -e COUCHDB_USER={{ couch_usr }} -e COUCHDB_PASSWORD={{ couch_pwd }} couchdb:latest
+#   when: self_ip == hostvars[groups['all_cluster_nodes'][0]]['ansible_default_ipv4']['address']
 
-- debug: var=temp
+# - name: Create docker volume 'vdb'
+#   become: yes
+#   shell:
+#     cmd: docker volume create --opt type=ext4 --opt device=/dev/vdb vdb
 
-- name: Create backup couchdb container
-  become: yes
-  shell:
-    cmd: docker run --name backupdb -dit -p 15984:5984 -v vdc:/opt/couchdb/data -e COUCHDB_USER={{ couch_usr }} -e COUCHDB_PASSWORD={{ couch_pwd }} couchdb:latest
-  when: self_ip == hostvars[groups['all_cluster_nodes'][0]]['ansible_default_ipv4']['address']
+## todo: change to fire up swarm 
+# - name: Fire up docker container for couchdb
+#   become: yes
+#   shell:
+#     cmd: "{{start_cmd}}"
 
-- name: Create docker volume 'vdb'
-  become: yes
-  shell:
-    cmd: docker volume create --opt type=ext4 --opt device=/dev/vdb vdb
+# - name: Copy config shell scripts to couchdb containers
+#   become: yes
+#   shell:
+#     cmd: docker cp /cluster_setup.sh couchdb:/cluster_setup.sh
 
-- name: Fire up docker container for couchdb
-  become: yes
-  shell:
-    cmd: "{{start_cmd}}"
+# - name: Copy config file for coordination node
+#   become: yes
+#   shell:
+#     cmd: docker cp /setup_coordination_{{item}}.sh couchdb:/setup_coordination_{{item}}.sh
+#   loop: "{{ range(1,node_count|int)|list }}"
+#   when: self_ip  == coordination_ip 
 
-- name: Copy config shell scripts to couchdb containers
-  become: yes
-  shell:
-    cmd: docker cp /cluster_setup.sh couchdb:/cluster_setup.sh
+# - become: yes
+#   shell:
+#     cmd: docker exec -d couchdb chmod +x /cluster_setup.sh
 
-- name: Copy config file for coordination node
-  become: yes
-  shell:
-    cmd: docker cp /setup_coordination_{{item}}.sh couchdb:/setup_coordination_{{item}}.sh
-  loop: "{{ range(1,node_count|int)|list }}"
-  when: self_ip  == coordination_ip 
+# - name: Run cluster config
+#   become: yes
+#   shell:
+#     cmd: docker exec -it couchdb /bin/bash -c '/cluster_setup.sh'
+#   ignore_errors: yes
 
-- become: yes
-  shell:
-    cmd: docker exec -d couchdb chmod +x /cluster_setup.sh
+# - name: Restarting coucbdb to allow changes in vm.args to take effect
+#   become: yes
+#   shell:
+#     cmd: docker restart couchdb
 
-- name: Run cluster config
-  become: yes
-  shell:
-    cmd: docker exec -it couchdb /bin/bash -c '/cluster_setup.sh'
-  ignore_errors: yes
+# - name: Cluster setup, running on each node
+#   become: yes
+#   shell:
+#     cmd: docker exec -d couchdb curl -X POST -H "Content-Type:application/json" http://{{ couch_usr }}:{{ couch_pwd }}@127.0.0.1:5984/_cluster_setup -d '{"action":"enable_cluster", "bind_address":"0.0.0.0", "username":"{{ couch_usr }}", "password":"{{ couch_pwd }}", "node_count":"{{ node_count }}"}'
 
-- name: Restarting coucbdb to allow changes in vm.args to take effect
-  become: yes
-  shell:
-    cmd: docker restart couchdb
+# - pause:
+#     minutes: 1
 
-- name: Cluster setup, running on each node
-  become: yes
-  shell:
-    cmd: docker exec -d couchdb curl -X POST -H "Content-Type:application/json" http://{{ couch_usr }}:{{ couch_pwd }}@127.0.0.1:5984/_cluster_setup -d '{"action":"enable_cluster", "bind_address":"0.0.0.0", "username":"{{ couch_usr }}", "password":"{{ couch_pwd }}", "node_count":"{{ node_count }}"}'
+# - name: Run cluster coordination
+#   become: yes
+#   shell:
+#     cmd: docker exec -d couchdb chmod +x /setup_coordination_{{item}}.sh 
+#   loop: "{{ range(1,node_count|int)|list }}"
+#   when: self_ip  == coordination_ip  
 
-- pause:
-    minutes: 1
+# - become: yes
+#   ignore_errors: yes
+#   shell:
+#     cmd: docker exec -it couchdb /bin/bash -c '/setup_coordination_{{item}}.sh'
+#   loop: "{{ range(1,node_count|int)|list }}"
+#   when: self_ip  == coordination_ip
 
-- name: Run cluster coordination
-  become: yes
-  shell:
-    cmd: docker exec -d couchdb chmod +x /setup_coordination_{{item}}.sh 
-  loop: "{{ range(1,node_count|int)|list }}"
-  when: self_ip  == coordination_ip  
+# - pause:
+#     minutes: 1
 
-- become: yes
-  ignore_errors: yes
-  shell:
-    cmd: docker exec -it couchdb /bin/bash -c '/setup_coordination_{{item}}.sh'
-  loop: "{{ range(1,node_count|int)|list }}"
-  when: self_ip  == coordination_ip
+# - name: Finish_cluster
+#   become: yes
+#   shell:
+#     cmd: docker exec -d couchdb curl -X POST -H "Content-Type:application/json" http://{{ couch_usr }}:{{ couch_pwd }}@{{ coordination_ip }}:5984/_cluster_setup -d '{"action":"finish_cluster"}'
+#   when: self_ip  == coordination_ip
 
-- pause:
-    minutes: 1
+## todo: change to cronjob
+# - set_fact: 
+#      sourcedb: [junlin, history, finished_user]
 
-- name: Finish_cluster
-  become: yes
-  shell:
-    cmd: docker exec -d couchdb curl -X POST -H "Content-Type:application/json" http://{{ couch_usr }}:{{ couch_pwd }}@{{ coordination_ip }}:5984/_cluster_setup -d '{"action":"finish_cluster"}'
-  when: self_ip  == coordination_ip
+# - debug:
+#     msg: curl -X PUT http://{{ couch_usr }}:{{ couch_pwd }}@127.0.0.1:5984/{{ item }}; sleep 5;curl -X POST http://{{ couch_usr }}:{{ couch_pwd }}@172.17.0.1:15984/_replicate  -d '{"target":"{{ item }}", "source":"http://{{ couch_usr }}:{{ couch_pwd }}@172.17.0.1:5984/{{ item }}", "create_target":true, "continuous":true}' -H "Content-Type:application/json"
+#   loop: "{{ sourcedb }}"
+#   when: self_ip == hostvars[groups['all_cluster_nodes'][0]]['ansible_default_ipv4']['address']
 
-- set_fact: 
-     sourcedb: [junlin, history, finished_user]
-
-- debug:
-    msg: curl -X PUT http://{{ couch_usr }}:{{ couch_pwd }}@127.0.0.1:5984/{{ item }}; sleep 5;curl -X POST http://{{ couch_usr }}:{{ couch_pwd }}@172.17.0.1:15984/_replicate  -d '{"target":"{{ item }}", "source":"http://{{ couch_usr }}:{{ couch_pwd }}@172.17.0.1:5984/{{ item }}", "create_target":true, "continuous":true}' -H "Content-Type:application/json"
-  loop: "{{ sourcedb }}"
-  when: self_ip == hostvars[groups['all_cluster_nodes'][0]]['ansible_default_ipv4']['address']
-
-- name: Connect backup db to cluster db on the second node
-  become: yes
-  shell:
-    cmd: curl -X PUT http://{{ couch_usr }}:{{ couch_pwd }}@127.0.0.1:5984/{{ item }}; sleep 5;curl -X POST http://{{ couch_usr }}:{{ couch_pwd }}@172.17.0.1:15984/_replicate  -d '{"target":"{{ item }}", "source":"http://{{ couch_usr }}:{{ couch_pwd }}@172.17.0.1:5984/{{ item }}", "create_target":true, "continuous":true}' -H "Content-Type:application/json"
-  loop: "{{ sourcedb }}"
-  when: self_ip == hostvars[groups['all_cluster_nodes'][0]]['ansible_default_ipv4']['address']
+# - name: Connect backup db to cluster db on the second node
+#   become: yes
+#   shell:
+#     cmd: curl -X PUT http://{{ couch_usr }}:{{ couch_pwd }}@127.0.0.1:5984/{{ item }}; sleep 5;curl -X POST http://{{ couch_usr }}:{{ couch_pwd }}@172.17.0.1:15984/_replicate  -d '{"target":"{{ item }}", "source":"http://{{ couch_usr }}:{{ couch_pwd }}@172.17.0.1:5984/{{ item }}", "create_target":true, "continuous":true}' -H "Content-Type:application/json"
+#   loop: "{{ sourcedb }}"
+#   when: self_ip == hostvars[groups['all_cluster_nodes'][0]]['ansible_default_ipv4']['address']

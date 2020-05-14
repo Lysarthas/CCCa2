@@ -1,5 +1,5 @@
 source ./openrc.sh
-ansible-playbook --ask-become-pass local.yaml
+ansible-playbook remote.yaml ##--extra-var db_action=restore
 
 
 
