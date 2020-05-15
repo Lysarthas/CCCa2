@@ -75,11 +75,6 @@ services:
         volumes:
             - {{script_folder}}:{{script_folder}}
         entrypoint: ["sh", "-c", "{{script_folder}}/setup.sh" ]
-        depends_on:
-            - couch_db_1
-            - couch_db_2
-            - couch_db_3
-            - couch_db_4
         deploy:
             placement:
                 constraints: [node.hostname == server1]
@@ -88,32 +83,25 @@ services:
     history_harvester:
         image: harvester
         restart: on-failure
-        depends_on:
-            - couch_db_1
-            - couch_db_2
-            - couch_db_3
-            - couch_db_4
-            - haproxy
         environment:
             - pyscript=HistoryCrawler.py
-            - dbip=haproxy.test.com
+            - dbip=172.17.0.1
+            - http_proxy={{http_proxy}}
+            - https_proxy={{http_proxy}}
+            - no_proxy={{no_proxy}}
     
     stream_harvester:
         image: harvester
         restart: on-failure
-        depends_on:
-            - couch_db_1
-            - couch_db_2
-            - couch_db_3
-            - couch_db_4
-            - haproxy
         environment:
             - pyscript=StreamToCouchDB.py
-            - dbip=haproxy.test.com
+            - dbip=172.17.0.1
+            - http_proxy={{http_proxy}}
+            - https_proxy={{http_proxy}}
+            - no_proxy={{no_proxy}}
 
     backup_db:
         image: couchdb:latest
-        restart: always
         environment:
             - COUCHDB_USER={{couch_usr}}
             - COUCHDB_PASSWORD={{couch_pwd}}
@@ -125,7 +113,6 @@ services:
                   - {{backup_domain}}
         deploy:
             replicas: 1
-            endpoint_mode: dnsrr 
             placement:
                 constraints: [node.hostname == server1]
 
@@ -136,11 +123,11 @@ services:
             target: 80
           - published: 5984
             target: 5984
-        restart: always
-        networks:
-            default:
-                aliases:
-                  - haproxy.test.com
+        depends_on:
+            - couch_db_1
+            - couch_db_2
+            - couch_db_3
+            - couch_db_4
         volumes:
             - "{{volume_path}}/haproxy:/usr/local/etc/haproxy:ro"
         deploy:

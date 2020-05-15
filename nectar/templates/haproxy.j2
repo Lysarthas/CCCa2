@@ -11,11 +11,11 @@ defaults
     balance leastconn
     option forwardfor
     option redispatch
-    retries 4
+    retries 100
     option http-server-close
     timeout client 150000
     timeout server 3600000
-    timeout connect 500
+    timeout connect 1000
     stats enable
     stats uri /_haproxy_stats
 
@@ -32,9 +32,12 @@ backend couchdb_cluster
     server node3 {{node3_domain}}:5984 check inter 5s
     server node4 {{node4_domain}}:5984 check inter 5s
 
+
 frontend http-backup
     bind *:5984
     default_backend couchdb_backup
-
+ 
 backend couchdb_backup
-    server backup {{backup_domain}}:5984 check inter 5s
+    option httpchk GET /_up
+    http-check disable-on-404
+    server node1 {{backup_domain}}:5984 check inter 5s

@@ -1,13 +1,9 @@
-FROM python:3.7
+FROM python:3.7-slim
 
-RUN apt-get install -y \
-    git
+ADD ./ /code/
 
-RUN git clone https://jalllychun:compgliCit5y@github.com/Lysarthas/CCCa2.git \
-    && cd /CCCa2 \
-    && git checkout couchdb_store
-RUN pip install -r /CCCa2/crawler/requirements.txt
+RUN pip install --no-cache-dir -r /code/crawler/requirements.txt
 
-COPY entrypoint.sh entrypoint.sh
+COPY ./docker_image/entrypoint.sh entrypoint.sh
 
 ENTRYPOINT ["/entrypoint.sh"]

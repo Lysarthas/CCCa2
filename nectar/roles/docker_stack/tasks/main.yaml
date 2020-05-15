@@ -1,5 +1,17 @@
 ---
 
+- name: get servers ip
+  block:
+    - name: set server_ips
+      vars:
+        server_ips: []
+      set_fact:
+        server_ips: "{{server_ips}} + ['{{hostvars[item]['ansible_default_ipv4']['address']}}']"
+      with_items: "{{groups['all_cluster_nodes']}}"
+    - name: set proxy varible
+      set_fact:
+        no_proxy: "localhost,127.0.0.1,localaddress,172.16.0.0/12,.melbounre.rc.nectar.org.au,.storage.unimelb.edu.au,.cloud.unimelb.edu.au,{{ server_ips }}"
+
 - name: git clone
   become: yes
   git:
