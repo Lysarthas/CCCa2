@@ -52,13 +52,12 @@ class HistoryCrawler:
             anchor = (anchor + 1) % len(self.api_list)
             all_tasks.append(self.pool.submit(self.craw_timeline, user_id, api, auth, max_id))
         
-            if len(all_tasks) > limit:
-                wait(all_tasks)
-                del all_tasks[:]
-                count += limit
-                gc.collect()
-                with open('progress', 'w') as f:
-                    f.write('progress: %d / %d' % (count, len(self.target_users)))
+            
+        wait(all_tasks, return_when=futures.ALL_COMPLETED)
+                # count += limit
+                # gc.collect()
+                # with open('progress', 'w') as f:
+                    # f.write('progress: %d / %d' % (count, len(self.target_users)))
 
 
     def createDoc(self, data):
@@ -78,7 +77,6 @@ class HistoryCrawler:
             'place_type': place.place_type if place is not None else None
         }
         self.history_db.create_document(doc)
-        del doc
 
     def date_filter(self, tweets: list, create_doc_count: int):
         for status in tweets:
@@ -127,24 +125,24 @@ class HistoryCrawler:
 
                 max_id = tmp_tweets[-1].id
                 self.update_finished_user(user_id, max_id)
-                
-                del tmp_tweets[:]
-                del tmp_tweets
 
                 time.sleep(5)
             except tweepy.RateLimitError:
                 print('%s sleeping' % threading.get_ident())
                 print(auth.access_token)
+                sys.stdout.flush()
                 time.sleep(15 * 60)
             except tweepy.TweepError as e:
                 print(e.message[0]['message'])
+                sys.stdout.flush()
                 time.sleep(5)
-            except Exception as e:
-                print("Unexpected error:", str(e))
             except:
                 print("Unexpected error:", sys.exc_info()[0])
             finally:
                 sys.stdout.flush()
+
+        print("finish")
+        sys.stdout.flush()
 
 ## api pool
 accounts = config.get('accounts')
