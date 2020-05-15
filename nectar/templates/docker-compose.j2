@@ -81,15 +81,12 @@ services:
             - couch_db_3
             - couch_db_4
         deploy:
-            replicas: 1
-            endpoint_mode: dnsrr
             placement:
                 constraints: [node.hostname == server1]
 
 
     history_harvester:
         image: harvester
-        build: {{harvester_image_build_path}}
         restart: on-failure
         depends_on:
             - couch_db_1
@@ -99,11 +96,10 @@ services:
             - haproxy
         environment:
             - pyscript=HistoryCrawler.py
-            - dbip=haproxy
+            - dbip=haproxy.test.com
     
     stream_harvester:
         image: harvester
-        build: {{harvester_image_build_path}}
         restart: on-failure
         depends_on:
             - couch_db_1
@@ -113,7 +109,7 @@ services:
             - haproxy
         environment:
             - pyscript=StreamToCouchDB.py
-            - dbip=haproxy
+            - dbip=haproxy.test.com
 
     backup_db:
         image: couchdb:latest
@@ -144,7 +140,7 @@ services:
         networks:
             default:
                 aliases:
-                  - haproxy
+                  - haproxy.test.com
         volumes:
             - "{{volume_path}}/haproxy:/usr/local/etc/haproxy:ro"
         deploy:

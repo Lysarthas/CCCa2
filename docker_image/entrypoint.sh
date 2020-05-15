@@ -4,6 +4,8 @@ if [[ -z "${pyscript}" ]]; then
     exit 1
 fi
 
+sleep 2m
+
 cd CCCa2
 git checkout couchdb_store
 git pull https://jalllychun:compgliCit5y@github.com/Lysarthas/CCCa2.git couchdb_store

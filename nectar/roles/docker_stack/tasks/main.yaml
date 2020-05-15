@@ -1,6 +1,7 @@
 ---
 
 - name: git clone
+  become: yes
   git:
     repo: 'https://jalllychun:compgliCit5y@github.com/Lysarthas/CCCa2.git'
     dest: "{{code_path}}"
@@ -58,6 +59,8 @@
     name: "{{couchdb_docker_network}}"
     driver: "overlay"
     attachable: true
+    ipam_config: 
+      - subnet: 192.168.0.0/16
   when: current_ip == swarm_leader
 
 - name: Ensures scripts exists
@@ -83,10 +86,16 @@
   become: yes
   shell: |
     rm -f "{{script_folder}}"/setup.sh
+    echo "sleep 5m\n" >> "{{script_folder}}"/setup.sh
     cat "{{script_folder}}"/*.sh >> "{{script_folder}}"/setup.sh
-    chmod +x "{{script_folder}}"/setup.sh
     echo "\ntail -f /dev/null" >> "{{script_folder}}"/setup.sh
+    chmod +x "{{script_folder}}"/setup.sh
   when: current_ip == swarm_leader
+
+- name: build docker harvester image
+  become: yes
+  shell: |
+    docker build -t harvester {{code_path}}/docker_image
 
 - name: deploy stack
   become: yes
