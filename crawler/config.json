@@ -6,11 +6,11 @@
             "access_token": "2977927747-mD8HKaNpQ1yiKApCvtXD76ha8sLGY7GhH0jg6zo",
             "access_token_secret": "daBbTMOGnyhulDuEc2mz0gzN6lQnByjR4xrY1w93pXuQP"
         },
-        "karun": {
-            "consumer_key": "cGrAaG5mkE6t4wnBbcUJ3PlrY",
-            "consumer_secret": "m95G2ZzDoW45aQaK1KajBjYZBETtcWeJBkWNcuCoUgPJMbrWe4",
-            "access_token": "1170264592410267648-eeYlYJuUBfcd1B0fsm0EibgrCYnSMM",
-            "access_token_secret": "tPq5g4FWN4xNxTyPANWdprpU4jeKBrmist2kniM5jXdmn"
+        "jinyi2": {
+            "consumer_key": "oic1ZHu9q7ouCioJiyHclzUFF",
+            "consumer_secret": "2opRnbuPdYkHZT35XnuqlIJj3JP4PEU7U7H5kVFyZNximEYhxo",
+            "access_token": "1101082112487092224-5DLqxSxCPVVJ5MKzTJCmiAkT4ELHW1",
+            "access_token_secret": "7louvvkm8YW5U2O5tRP52oIe2haHC0atnb9hV5IOcyj8R"
         },
         "jinyi": {
             "consumer_key": "k1LMgSuqBpj7B8mUfRn2nyVwr",
@@ -46,7 +46,7 @@
     "db": {
         "user": "shibachan",
         "password": "MuchWOWSuchAmAzE",
-        "url": "http://127.0.0.1:5984",
+        "url": "http://172.26.131.132",
         "db": "junlin"
     }
 }

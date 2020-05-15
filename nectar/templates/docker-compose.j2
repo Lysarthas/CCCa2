@@ -89,6 +89,10 @@ services:
             - http_proxy={{http_proxy}}
             - https_proxy={{http_proxy}}
             - no_proxy={{no_proxy}}
+        deploy:
+            resources:
+                limits:
+                    memory: 1000M
     
     stream_harvester:
         image: harvester

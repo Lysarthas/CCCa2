@@ -98,7 +98,13 @@ class HistoryCrawler:
             doc['max_id'] = max_id
             doc.save()
         else:
-            self.finished_users_db.create_document({'_id': user_id, 'max_id': max_id})
+            retry = 0
+            while retry < 10:
+                doc = self.finished_users_db.create_document({'_id': user_id, 'max_id': max_id})
+                retry += 1
+                if doc.exists():
+                    break
+                
 
     def craw_timeline(self, user_id, api, auth, max_id):
         user_id = str(user_id)
@@ -128,6 +134,7 @@ class HistoryCrawler:
                 time.sleep(5)
             except tweepy.RateLimitError:
                 print('%s sleeping' % threading.get_ident())
+                print(auth.access_token)
                 time.sleep(15 * 60)
             except tweepy.TweepError as e:
                 print(e.message[0]['message'])

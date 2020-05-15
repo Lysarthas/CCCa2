@@ -107,7 +107,8 @@
 - name: build docker harvester image
   become: yes
   shell: |
-    docker build -t harvester {{code_path}}/docker_image
+    cd {{code_path}}
+    docker build -t harvester -f docker_image/Dockerfile .
 
 - name: deploy stack
   become: yes
@@ -120,4 +121,15 @@
 
 - pause:
     seconds: 10
+
+- name: restart history crawler in case 
+  become: yes
+  vars:
+    service: couchdb_history_harvester
+  cron:
+    name: "restart history crawler 1"
+    minute: "*/10"
+    job: "[[ $(docker service ps --format \"{{ '{{' }}.DesiredState{{ '}}' }}\" {{service}}) == \"Shutdown\" ]]; then docker service update --force {{service}}; fi"
+  when: current_ip == swarm_leader
+
 
