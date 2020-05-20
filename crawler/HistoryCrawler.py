@@ -37,7 +37,7 @@ class HistoryCrawler:
             if user_id not in finished_users.keys():
                 target_users.append((user_id, max_tweet_id))
             elif finished_users.get(user_id) is not None:
-                target_users.append(user_id, min(int(max_tweet_id), int(finished_users[user_id])))
+                target_users.append((user_id, min(int(max_tweet_id), int(finished_users[user_id]))))
         
         return target_users
 
