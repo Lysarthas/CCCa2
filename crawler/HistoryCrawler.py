@@ -21,7 +21,7 @@ class HistoryCrawler:
         self.end_date = end_date
 
     def get_all_users(self):
-        view_result = self.tweet_db.get_view_result('_design/result', 'user', group_level = 1, reduce=True, stable=False, update='false', raw_result=True)
+        view_result = self.tweet_db.get_view_result('_design/result', 'user', group_level = 1, reduce=True, stable=False, update='lazy', raw_result=True)
         return [(row['key'], row['value']) for row in view_result['rows']]
 
     def get_finished_users(self):
