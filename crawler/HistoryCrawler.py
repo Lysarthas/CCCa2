@@ -10,9 +10,9 @@ class HistoryCrawler:
     def __init__(self, api_list, start_date, end_date):
         super().__init__()
 
-        self.tweet_db = get_db_client() ## tweet db
+        self.tweet_db = get_db_client('junlin_id_fixed') ## tweet db
         self.finished_users_db = get_db_client('finished_user') ## db to store the users who has been crawled
-        self.history_db = get_db_client('history')
+        self.history_db = get_db_client('history_id_fixed')
 
         self.pool = ThreadPoolExecutor(max_workers=8)
 
@@ -21,23 +21,24 @@ class HistoryCrawler:
         self.end_date = end_date
 
     def get_all_users(self):
-        view_result = self.tweet_db.get_view_result('_design/results', 'user', group_level = 1, raw_result=True, reduce=True)
+        view_result = self.tweet_db.get_view_result('_design/result', 'user', group_level = 1, reduce=True, stable=False, update='false', raw_result=True)
         return [(row['key'], row['value']) for row in view_result['rows']]
 
     def get_finished_users(self):
         all_docs = self.finished_users_db.all_docs(include_docs=True)
-        return dict([(int(row['key']), row['doc'].get('max_id')) for row in all_docs['rows']])
+        return dict([(row['key'], row['doc'].get('max_id')) for row in all_docs['rows']])
 
     def get_target_users(self):
+        target_users = []
         finished_users = self.get_finished_users()
 
-        all_users = self.get_all_users()
-        target_users = []
-        for user, max_tweet_id in all_users:
-            if user not in finished_users.keys():
-                target_users.append((user, max_tweet_id))
-            elif finished_users.get(user) is not None:
-                target_users.append((user, min(max_tweet_id, finished_users[user])))
+        all_users_results = self.get_all_users()
+        for user_id, max_tweet_id in all_users_results:
+            if user_id not in finished_users.keys():
+                target_users.append((user_id, max_tweet_id))
+            elif finished_users.get(user_id) is not None:
+                target_users.append(user_id, min(max_tweet_id, finished_users[user_id]))
+        
         return target_users
 
 
@@ -45,19 +46,19 @@ class HistoryCrawler:
         self.target_users = self.get_target_users()
         all_tasks = []
         anchor = 0
-        limit = 500
+        limit = 1000
         count = 0
         for user_id, max_id in self.target_users:
             api, auth = self.api_list[anchor]
             anchor = (anchor + 1) % len(self.api_list)
             all_tasks.append(self.pool.submit(self.craw_timeline, user_id, api, auth, max_id))
         
-            
-        wait(all_tasks, return_when=futures.ALL_COMPLETED)
-                # count += limit
-                # gc.collect()
-                # with open('progress', 'w') as f:
-                    # f.write('progress: %d / %d' % (count, len(self.target_users)))
+            if len(all_tasks) > limit:
+                wait(all_tasks, return_when=futures.ALL_COMPLETED)
+                count += limit
+                del all_tasks[:]
+                with open('progress', 'w') as f:
+                    f.write('progress: %d / %d' % (count, len(self.target_users)))
 
 
     def createDoc(self, data):
@@ -67,16 +68,17 @@ class HistoryCrawler:
 
         place = getattr(data, 'place')
         doc = {
-            '_id': str(data.id),
+            '_id': str(data.id_str),
             'post_at': data.created_at.timestamp(),
             'text': data.full_text,
             'json': data._json,
-            'author': data.author.id,
+            'author': int(data.author.id_str),
             'place_name': place.name if place is not None else None,
             'place_full_name': place.full_name if place is not None else None,
             'place_type': place.place_type if place is not None else None
         }
         self.history_db.create_document(doc)
+        del self.history_db[doc['_id']]
 
     def date_filter(self, tweets: list, create_doc_count: int):
         for status in tweets:
@@ -101,12 +103,14 @@ class HistoryCrawler:
                 doc = self.finished_users_db.create_document({'_id': user_id, 'max_id': max_id})
                 retry += 1
                 if doc.exists():
+                    del self.finished_users_db[user_id]
                     break
                 
 
     def craw_timeline(self, user_id, api, auth, max_id):
         user_id = str(user_id)
         create_doc_count = 0
+        max_id = str(max_id)
 
         while True:
             try:
@@ -118,12 +122,12 @@ class HistoryCrawler:
                     print("no more tweet")
                     break
 
-                if create_doc_count > 400:
+                if create_doc_count > 500:
                     self.update_finished_user(user_id, None)
                     print("enough tweet")
                     break
 
-                max_id = tmp_tweets[-1].id
+                max_id = tmp_tweets[-1].id_str
                 self.update_finished_user(user_id, max_id)
 
                 time.sleep(5)

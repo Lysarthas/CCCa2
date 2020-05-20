@@ -6,7 +6,7 @@ api, auth = init_api('mls')
 class TweetStreamListener(tweepy.StreamListener):
     def __init__(self, api=None):
         super().__init__(api=api)
-        self.db = get_db_client()
+        self.db = get_db_client('junlin_id_fixed')
 
     def createDoc(self, data):
         if str(data.id) in self.db: ## check duplicate
@@ -19,11 +19,11 @@ class TweetStreamListener(tweepy.StreamListener):
         if is_truncated:
             text = data.extended_tweet['full_text']
         doc = {
-            '_id': str(data.id),
+            '_id': str(data.id_str),
             'post_at': data.created_at.timestamp(),
             'text': text,
             'json': data._json,
-            'author': data.author.id,
+            'author': int(data.author.id_str),
             'place_name': place.name if place is not None else None,
             'place_full_name': place.full_name if place is not None else None,
             'place_type': place.place_type if place is not None else None
