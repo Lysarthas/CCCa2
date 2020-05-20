@@ -14,7 +14,7 @@ class HistoryCrawler:
         self.finished_users_db = get_db_client('finished_user') ## db to store the users who has been crawled
         self.history_db = get_db_client('history_id_fixed')
 
-        self.pool = ThreadPoolExecutor(max_workers=8)
+        self.pool = ThreadPoolExecutor(max_workers=12)
 
         self.api_list = api_list
         self.start_date = start_date
