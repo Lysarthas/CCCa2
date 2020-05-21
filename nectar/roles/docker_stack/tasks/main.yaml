@@ -120,7 +120,14 @@
   when: current_ip == swarm_leader
 
 - pause:
-    seconds: 10
+    seconds: 30
+
+- name: restart haproxy to force it to dealay start
+  become: yes
+  shell: |
+    docker service update --force couchdb_haproxy
+    docker service update --force couchdb_history_harvester
+  when: current_ip == swarm_leader
 
 - name: restart history crawler in case 
   become: yes
@@ -128,8 +135,8 @@
     service: couchdb_history_harvester
   cron:
     name: "restart history crawler 1"
-    minute: "*/10"
-    job: "[[ $(docker service ps --format \"{{ '{{' }}.DesiredState{{ '}}' }}\" {{service}}) == \"Shutdown\" ]]; then docker service update --force {{service}}; fi"
+    minute: "*/30"
+    job: "bash -c '[[ $(docker service ps --format \"{{ '{{' }}.DesiredState{{ '}}' }}\" {{service}}) == \"Shutdown\" ]] && docker service update --force {{service}}'"
   when: current_ip == swarm_leader
 
 

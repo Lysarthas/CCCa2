@@ -11,11 +11,11 @@ defaults
     balance leastconn
     option forwardfor
     option redispatch
-    retries 100
+    retries 500
     option http-server-close
     timeout client 150000
     timeout server 3600000
-    timeout connect 1000
+    timeout connect 2000ms
     stats enable
     stats uri /_haproxy_stats
 

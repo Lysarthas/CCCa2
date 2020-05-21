@@ -22,7 +22,7 @@
         dest: /resotre.sh
         block: "{{ lookup('template', '{{ role_path }}/../../templates/restore_db.j2') }}"
         marker: "# END ANSIBLE MANAGED BLOCK"
-      with_items: ['junlin', 'finished_user', 'history']
+      with_items: ['junlin_id_fixed', 'finished_user', 'history_id_fixed']
     - name: run the script
       shell: |
         bash /resotre.sh
@@ -45,7 +45,7 @@
         dest: /backup.sh
         block: "{{ lookup('template', '{{ role_path }}/../../templates/backup_db.j2') }}"
         marker: "# END ANSIBLE MANAGED BLOCK"
-      with_items: ['junlin', 'finished_user', 'history']
+      with_items: ['junlin_id_fixed', 'finished_user', 'history_id_fixed']
     - name: run the backup script
       shell: |
         bash /backup.sh
