@@ -8,14 +8,14 @@ from mpi4py import MPI
 def get_db(db):
 
     db_result = get_db_client(db_name=db)
-    total_rows = db_result.doc_count()
-    res_collection = Result(db_result.all_docs, include_docs=True)
-
+    view_result = db_result.get_view_result('_design/token-count', 'covid-tweets', reduce= True, stale='update_after')
+    total_rows = view_result[0][0]['value']
+    res_collection = db_result.get_view_result('_design/token-count', 'covid-tweets', reduce= False, stale='update_after')
     return res_collection, total_rows
 
 def get_keywords():
 
-    f = open("covid_keyword.txt", "r", encoding='utf-8')
+    f = open("keyword.txt", "r", encoding='utf-8')
     kwd = []
     for line in f:
         kwd.append(line.rstrip('\n').lower())
@@ -40,7 +40,7 @@ def processor(f, task_rank, nodes, fsize):
         if tweet == '' or len(tweet) <= 2:
             break
         try:
-            text = tweet['doc']['text']
+            text = tweet['value']
             
             for words in keyword:
                 if words in text:
@@ -62,14 +62,16 @@ size = comm.Get_size()
 
 # print("check", rank)
 f, total_rows = get_db('junlin_id_fixed')
-print("processor", rank, " opened file, ", total_rows, " in total.")
+# print("processor", rank, " opened file, ", total_rows, " in total.")
 
 kwd = processor(f, rank, size, total_rows)
-# keywords = comm.gather(kwd, root = 0)
+keywords = comm.gather(kwd, root = 0)
 
-# top = Counter()
-# for k in keywords:
-#     top += k
-# top = top.most_common(15)
-# print(top)
+if rank == 0:
+
+    top = Counter()
+    for k in keywords:
+        top += k
+
+    print(top)
 
