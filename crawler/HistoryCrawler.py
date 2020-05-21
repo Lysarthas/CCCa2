@@ -34,11 +34,14 @@ class HistoryCrawler:
 
         all_users_results = self.get_all_users()
         for user_id, max_tweet_id in all_users_results:
+            user_id = str(user_id)
             if user_id not in finished_users.keys():
                 target_users.append((user_id, max_tweet_id))
             elif finished_users.get(user_id) is not None:
                 target_users.append((user_id, min(int(max_tweet_id), int(finished_users[user_id]))))
         
+        with open('progress', 'a') as f:
+            f.write('total num of tasks: %d' % len(target_users))
         return target_users
 
 
@@ -57,7 +60,7 @@ class HistoryCrawler:
                 wait(all_tasks, return_when=futures.ALL_COMPLETED)
                 count += limit
                 del all_tasks[:]
-                with open('progress', 'w') as f:
+                with open('progress', 'a') as f:
                     f.write('progress: %d / %d' % (count, len(self.target_users)))
 
 
