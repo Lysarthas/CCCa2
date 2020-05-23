@@ -126,7 +126,6 @@
   become: yes
   shell: |
     docker service update --force couchdb_haproxy
-    docker service update --force couchdb_history_harvester
   when: current_ip == swarm_leader
 
 - name: restart history crawler in case 
