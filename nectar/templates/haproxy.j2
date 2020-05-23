@@ -1,13 +1,23 @@
 global
-ulimit-n 51200
- 
+    maxconn 512
+    spread-checks 5
+
 defaults
-    log global
     mode http
-    option dontlognull
-    timeout connect 1000ms
-    timeout client 150000ms
-    timeout server 150000ms
+    log global
+    monitor-uri /_haproxy_health_check
+    option log-health-checks
+    option httplog
+    balance leastconn
+    option forwardfor
+    option redispatch
+    retries 500
+    option http-server-close
+    timeout client 150000
+    timeout server 3600000
+    timeout connect 2000ms
+    stats enable
+    stats uri /_haproxy_stats
 
 
 frontend http-couchdb
@@ -15,16 +25,19 @@ frontend http-couchdb
     default_backend couchdb_cluster
  
 backend couchdb_cluster
-    balance leastconn
-    cookie SERVERID insert indirect nocache
-    server node1 {{node1_domain}}:5984 check cookie s1
-    server node2 {{node2_domain}}:5984 check cookie s2
-    server node3 {{node3_domain}}:5984 check cookie s3
-    server node4 {{node4_domain}}:5984 check cookie s4
+    option httpchk GET /_up
+    http-check disable-on-404
+    server node1 {{node1_domain}}:5984 check inter 5s
+    server node2 {{node2_domain}}:5984 check inter 5s
+    server node3 {{node3_domain}}:5984 check inter 5s
+    server node4 {{node4_domain}}:5984 check inter 5s
+
 
 frontend http-backup
     bind *:5984
     default_backend couchdb_backup
-
+ 
 backend couchdb_backup
-    server backup {{backup_domain}}:5984 check 
+    option httpchk GET /_up
+    http-check disable-on-404
+    server node1 {{backup_domain}}:5984 check inter 5s

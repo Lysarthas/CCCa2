@@ -5,6 +5,7 @@
       ansible_python_interpreter: /usr/bin/python3
       ansible_user: ubuntu
       ansible_ssh_common_args: '-o StrictHostKeyChecking=no'
+      http_proxy: "http://wwwproxy.unimelb.edu.au:8000/"
       current_ip: "{{hostvars[inventory_hostname]['ansible_default_ipv4']['address']}}"
       node1_domain: 'couchdb1.test.com'
       node2_domain: 'couchdb2.test.com'
@@ -27,16 +28,9 @@
       script_folder: /scripts
       code_path: /code
       harvester_image_build_path: "{{code_path}}/docker_image"
-  
-  pre_tasks:
-    - set_fact:
-        action: restore
+      code_version: ansible ## can set to branch name or hash value of any commit
 
   roles:
-    - role: volume_mounting
-    - role: http_proxy_setup
-    - role: docker_installation
-    - role: docker_proxy
     - role: docker_swarm
     - role: docker_stack
     - role: couchdb_replicate

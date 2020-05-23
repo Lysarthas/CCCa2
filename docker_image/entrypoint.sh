@@ -4,11 +4,8 @@ if [[ -z "${pyscript}" ]]; then
     exit 1
 fi
 
-cd CCCa2
-git checkout couchdb_store
-git pull https://jalllychun:compgliCit5y@github.com/Lysarthas/CCCa2.git couchdb_store
+sleep 2m
 
-cd crawler
-pip install -r requirements.txt
+cd /code/crawler
 
 python $pyscript

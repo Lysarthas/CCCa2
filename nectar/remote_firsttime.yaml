@@ -1,0 +1,14 @@
+- hosts: all_cluster_nodes
+  vars_files:
+      - host_vars/nectar.yaml
+  vars:
+      ansible_python_interpreter: /usr/bin/python3
+      ansible_user: ubuntu
+      ansible_ssh_common_args: '-o StrictHostKeyChecking=no'
+      current_ip: "{{hostvars[inventory_hostname]['ansible_default_ipv4']['address']}}"
+
+  roles:
+    - role: volume_mounting
+    - role: http_proxy_setup
+    - role: docker_installation
+    - role: docker_proxy
