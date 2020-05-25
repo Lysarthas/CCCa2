@@ -120,6 +120,7 @@ services:
             - ERL_FLAGS="+A 8"
         volumes:
             - /{{backup_path}}/data:/opt/couchdb/data
+            - /{{backup_path}}/local.d:/opt/couchdb/etc/local.d
         networks:
             default:
                 aliases:
