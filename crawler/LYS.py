@@ -40,7 +40,7 @@ def processor(f, task_rank, nodes, fsize):
         if tweet == '' or len(tweet) <= 2:
             break
         try:
-            text = tweet['value']
+            text = tweet['value'].lower()
             
             for words in keyword:
                 if words in text:
