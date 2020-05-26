@@ -101,7 +101,7 @@ class RiskAreaMap extends Component {
 
     this.setState({
       option: this.makeOption(
-        "Hispical admission ratio last year(2019)",
+        "Hospital admission ratio last year(2019)",
         this.convertData(poppulation_result["rows"])
       ),
     });

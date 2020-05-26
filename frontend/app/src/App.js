@@ -10,11 +10,11 @@ const { Header, Content } = Layout;
 function App() {
   return (
     <div className="App">
-      <Layout style={{height: '100%'}}>
-        <Header style={{backgroundColor:'#efefef', marginBottom: '0px', height: '50px'}}>
+      <Layout style={{height: '100%', backgroundColor: '#e7e7e7'}}>
+        <Header style={{backgroundColor:'#efefef', height: '50px'}}>
           <MyHeader />
         </Header>
-        <Content style={{height: '100%', flex: 'auto', background: '#e7e7e7'}}>
+        <Content style={{background: '#e7e7e7'}}>
           <Container />
         </Content>
       </Layout>

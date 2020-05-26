@@ -1,16 +1,14 @@
 import React from 'react';
-import { PageHeader } from 'antd';
 import 'antd/dist/antd.css';
+import logo from './logo.png'
 
 function MyHeader() {
   return (
     <div className="header-panel" style={{height: '100%'}}>
-      <PageHeader
-        className="site-page-header"
-        title="COVID-19 Australia Twitter Map"
-        subTitle="by CCCp2"
-        style={{height: '100%'}}
-      />
+      <img src={logo} alt="logo" style={{height: '90%', float: 'left'}}/>
+      <h2 style={{position: 'relative', left: '5px', textAlign: 'left'}} >
+        COVID-19 Australia Twitter Map
+      </h2>
     </div>
   );
 }

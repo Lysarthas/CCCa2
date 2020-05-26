@@ -2,9 +2,9 @@ import React, { Component } from "react";
 import RiskAreaMap from "./RiskAreaMap";
 import StateSentimentCountMap from "./StateSentimentCountMap";
 import "./RightChild.css";
-import {ButtonGroup, Button} from "react-bootstrap";
+import { ButtonGroup } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { Row, Col } from "antd";
+import { Button } from "antd";
 
 class RiskSentimentMap extends Component {
   constructor(props) {
@@ -27,32 +27,35 @@ class RiskSentimentMap extends Component {
 
   render() {
     return (
-      <div className="parent">
-        <Row>
-          <Col span={23}>
-            {this.state.mode === "risk" ? (
-              <RiskAreaMap />
-            ) : (
-              <StateSentimentCountMap />
-            )}
-          </Col>
-          <Col span={1}>
-            <ButtonGroup vertical className="rightchild" style={{marginTop: '60px', marginLeft: '10px', width: '70px'}}>
-              <Button value="risk" 
-                onClick={this.handler} 
-                variant="light"
-                style={{margin: '2px'}}>
-                admis-<br/>sion<br/>ratio
-              </Button>
-              <Button value="sentiment_count" 
-              onClick={this.handler} 
-              variant="light"
-              style={{margin: '2px'}}>
-                senti-<br/>ment<br/>count
-              </Button>
-            </ButtonGroup>
-          </Col>
-        </Row>
+      <div className="parent" style={{ display: "flex", flexDirection: "row" }}>
+        <div style={{ width: "80%" }}>
+          {this.state.mode === "risk" ? (
+            <RiskAreaMap />
+          ) : (
+            <StateSentimentCountMap />
+          )}
+        </div>
+        <div style={{ width: "20%", marginTop: "10px" }}>
+          <ButtonGroup
+            vertical
+            className="rightchild"
+            style={{ marginTop: "10px" }}
+          >
+            <Button
+              value="risk"
+              onClick={this.handler}
+              style={{ width: "110px", fontSize: '12px', padding: 0}}
+            >admission ratio
+            </Button>
+            <Button
+              value="sentiment_count"
+              onClick={this.handler}
+              style={{ width: "110px", fontSize: '12px', padding: 0 }}
+            >
+              sentiment count
+            </Button>
+          </ButtonGroup>
+        </div>
       </div>
     );
   }

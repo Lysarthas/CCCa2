@@ -53,7 +53,7 @@ class Container extends Component {
       <div className="dashboard">
         <Row>
           {Object.keys(this.sections).map((section) => (
-            <Col span={10} offset={1} key={section} style={{height: '340px'}}>
+            <Col span={11} key={section} style={{height: '340px', backgroundColor: 'white', margin: '20px'}}>
               {this.createSection(section, this.state[section])}
               {[...Array(this.sections[section].titles.length).keys()].map((index) => (
                 <Button
@@ -67,10 +67,10 @@ class Container extends Component {
             </Col>
             
           ))}
-          <Col span={8} offset={1} key='risk-areas-map' style={{height: '320px', marginTop: '10px'}}>
+          <Col span={11} key='risk-areas-map' style={{height: '320px', backgroundColor: 'white', margin: '20px'}}>
             <RiskSentimentMap />
           </Col>
-          <Col span={8} offset={4} key='topics' style={{marginTop: '30px'}}>
+          <Col span={11} key='topics' style={{height: '320px', backgroundColor: 'white', margin: '20px'}}>
             <StateTopics />
           </Col>
         </Row>
