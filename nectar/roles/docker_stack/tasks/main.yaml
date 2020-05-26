@@ -1,8 +1,23 @@
 ---
 
-- name: - git:
-  repo: 'https://jalllychun:compgliCit5y@github.com/Lysarthas/CCCa2.git'
-  dest: "{{code_path}}"
+- name: get servers ip
+  block:
+    - name: set server_ips
+      vars:
+        server_ips: []
+      set_fact:
+        server_ips: "{{server_ips}} + ['{{hostvars[item]['ansible_default_ipv4']['address']}}']"
+      with_items: "{{groups['all_cluster_nodes']}}"
+    - name: set proxy varible
+      set_fact:
+        no_proxy: "localhost,127.0.0.1,localaddress,172.16.0.0/12,.melbounre.rc.nectar.org.au,.storage.unimelb.edu.au,.cloud.unimelb.edu.au,{{ server_ips }}"
+
+- name: git clone
+  become: yes
+  git:
+    repo: 'https://jalllychun:compgliCit5y@github.com/Lysarthas/CCCa2.git'
+    dest: "{{code_path}}"
+    version: "{{code_version}}"
 
 - name: fill template to remote
   become: yes
@@ -56,6 +71,8 @@
     name: "{{couchdb_docker_network}}"
     driver: "overlay"
     attachable: true
+    ipam_config: 
+      - subnet: 192.168.0.0/16
   when: current_ip == swarm_leader
 
 - name: Ensures scripts exists
@@ -81,10 +98,17 @@
   become: yes
   shell: |
     rm -f "{{script_folder}}"/setup.sh
+    echo "sleep 5m\n" >> "{{script_folder}}"/setup.sh
     cat "{{script_folder}}"/*.sh >> "{{script_folder}}"/setup.sh
-    chmod +x "{{script_folder}}"/setup.sh
     echo "\ntail -f /dev/null" >> "{{script_folder}}"/setup.sh
+    chmod +x "{{script_folder}}"/setup.sh
   when: current_ip == swarm_leader
+
+- name: build docker harvester image
+  become: yes
+  shell: |
+    cd {{code_path}}
+    docker build -t harvester -f docker_image/Dockerfile .
 
 - name: deploy stack
   become: yes
@@ -96,5 +120,22 @@
   when: current_ip == swarm_leader
 
 - pause:
-    seconds: 10
+    seconds: 30
+
+- name: restart haproxy to force it to dealay start
+  become: yes
+  shell: |
+    docker service update --force couchdb_haproxy
+  when: current_ip == swarm_leader
+
+- name: restart history crawler in case 
+  become: yes
+  vars:
+    service: couchdb_history_harvester
+  cron:
+    name: "restart history crawler 1"
+    minute: "*/30"
+    job: "bash -c '[[ $(docker service ps --format \"{{ '{{' }}.DesiredState{{ '}}' }}\" {{service}}) == \"Shutdown\" ]] && docker service update --force {{service}}'"
+  when: current_ip == swarm_leader
+
 

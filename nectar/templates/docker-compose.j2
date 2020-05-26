@@ -4,6 +4,8 @@ services:
     couch_db_1:
         image: couchdb:latest
         restart: always
+        environment:
+            - ERL_FLAGS="+A 8"
         volumes:
             - {{volume_path}}/couchdb/data:/opt/couchdb/data
             - {{volume_path}}/couchdb/local.d:/opt/couchdb/etc/local.d
@@ -21,6 +23,8 @@ services:
     couch_db_2:
         image: couchdb:latest
         restart: always
+        environment:
+            - ERL_FLAGS="+A 8"
         volumes:
             - {{volume_path}}/couchdb/data:/opt/couchdb/data
             - {{volume_path}}/couchdb/local.d:/opt/couchdb/etc/local.d
@@ -38,6 +42,8 @@ services:
     couch_db_3:
         image: couchdb:latest
         restart: always
+        environment:
+            - ERL_FLAGS="+A 8"
         volumes:
             - {{volume_path}}/couchdb/data:/opt/couchdb/data
             - {{volume_path}}/couchdb/local.d:/opt/couchdb/etc/local.d
@@ -56,6 +62,8 @@ services:
     couch_db_4:
         image: couchdb:latest
         restart: always
+        environment:
+            - ERL_FLAGS="+A 8"
         volumes:
             - {{volume_path}}/couchdb/data:/opt/couchdb/data
             - {{volume_path}}/couchdb/local.d:/opt/couchdb/etc/local.d
@@ -75,49 +83,50 @@ services:
         volumes:
             - {{script_folder}}:{{script_folder}}
         entrypoint: ["sh", "-c", "{{script_folder}}/setup.sh" ]
-        depends_on:
-            - couch_db_1
-            - couch_db_2
-            - couch_db_3
-            - couch_db_4
         deploy:
-            replicas: 1
-            endpoint_mode: dnsrr
             placement:
                 constraints: [node.hostname == server1]
 
 
     history_harvester:
         image: harvester
-        build: {{harvester_image_build_path}}
         restart: on-failure
         environment:
             - pyscript=HistoryCrawler.py
-            - dbip=haproxy
+            - dbip=172.17.0.1
+            - http_proxy={{http_proxy}}
+            - https_proxy={{http_proxy}}
+            - no_proxy={{no_proxy}}
+        deploy:
+            resources:
+                limits:
+                    memory: 1000M
     
     stream_harvester:
         image: harvester
         restart: on-failure
-        build: {{harvester_image_build_path}}
         environment:
             - pyscript=StreamToCouchDB.py
-            - dbip=haproxy
+            - dbip=172.17.0.1
+            - http_proxy={{http_proxy}}
+            - https_proxy={{http_proxy}}
+            - no_proxy={{no_proxy}}
 
     backup_db:
         image: couchdb:latest
-        restart: always
         environment:
             - COUCHDB_USER={{couch_usr}}
             - COUCHDB_PASSWORD={{couch_pwd}}
+            - ERL_FLAGS="+A 8"
         volumes:
             - /{{backup_path}}/data:/opt/couchdb/data
+            - /{{backup_path}}/local.d:/opt/couchdb/etc/local.d
         networks:
             default:
                 aliases:
                   - {{backup_domain}}
         deploy:
             replicas: 1
-            endpoint_mode: dnsrr 
             placement:
                 constraints: [node.hostname == server1]
 
@@ -128,11 +137,11 @@ services:
             target: 80
           - published: 5984
             target: 5984
-        restart: always
-        networks:
-            default:
-                aliases:
-                  - haproxy
+        depends_on:
+            - couch_db_1
+            - couch_db_2
+            - couch_db_3
+            - couch_db_4
         volumes:
             - "{{volume_path}}/haproxy:/usr/local/etc/haproxy:ro"
         deploy:

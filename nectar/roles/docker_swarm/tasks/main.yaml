@@ -1,5 +1,4 @@
 ---
-- set_fact: swarm_leader={{hostvars[groups['all_cluster_nodes'][0]]['ansible_default_ipv4']['address']}} swarm_mangers="[ '{{hostvars[groups['all_cluster_nodes'][1]]['ansible_default_ipv4']['address']}}']" swarm_workers="[ '{{hostvars[groups['all_cluster_nodes'][2]]['ansible_default_ipv4']['address']}}', '{{hostvars[groups['all_cluster_nodes'][3]]['ansible_default_ipv4']['address']}}']"
 
 - name: set server1 to manger and leader
   become: yes
