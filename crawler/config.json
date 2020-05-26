@@ -47,7 +47,10 @@
         "user": "shibachan",
         "password": "MuchWOWSuchAmAzE",
         "url": "http://172.26.131.132",
-        "db": "junlin"
+        "db": "junlin",
+        "sentiments-table" : "twitter_sentiments_3",
+        "population_data": "population_data",
+        "top-sentiments-table" : "top_twitter_sentiments_3"
     }
 }
 
