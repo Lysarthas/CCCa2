@@ -113,8 +113,8 @@ class StateEngagementMap extends Component {
       reduce: true,
       group_level: 1,
     };
-    const current_result = await get_db('twitter_sentiments_1', 'http://shibachan:MuchWOWSuchAmAzE@172.26.131.132:5984/').query('sentiments/locations_neg_stats', query_option);
-    const history_result = await get_db('twitter_sentiments_3', 'http://shibachan:MuchWOWSuchAmAzE@172.26.131.132:5984/').query('sentiments/locations_neg_stats', query_option);
+    const current_result = await get_db('twitter_sentiments_1', 'http://shibachan:MuchWOWSuchAmAzE@172.26.131.162:5984/').query('sentiments/locations_neg_stats', query_option);
+    const history_result = await get_db('twitter_sentiments_3', 'http://shibachan:MuchWOWSuchAmAzE@172.26.131.162:5984/').query('sentiments/locations_neg_stats', query_option);
     const rows = history_result['rows'].concat(current_result['rows'])
 
     this.setState({

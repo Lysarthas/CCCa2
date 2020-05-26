@@ -95,7 +95,7 @@ class RiskAreaMap extends Component {
   async componentDidMount() {
     echarts.registerMap("Australia", au_state_json);
     
-    const poppulation_result = await get_db('population_data', 'http://shibachan:MuchWOWSuchAmAzE@172.26.131.132:5984/').allDocs({include_docs: true})
+    const poppulation_result = await get_db('population_data', 'http://shibachan:MuchWOWSuchAmAzE@172.26.131.162:5984/').allDocs({include_docs: true})
 
 
 
