@@ -19,6 +19,35 @@
     dest: "{{code_path}}"
     version: "{{code_version}}"
 
+- name: install nodejs
+  become: yes
+  vars:
+    NODEJS_VERSION: "8"
+    ansible_distribution_release: "xenial" #trusty
+  block:
+    - name: Install the gpg key for nodejs LTS
+      apt_key:
+        url: "https://deb.nodesource.com/gpgkey/nodesource.gpg.key"
+        state: present
+
+    - name: Install the nodejs LTS repos
+      apt_repository:
+        repo: "deb https://deb.nodesource.com/node_{{ NODEJS_VERSION }}.x {{ ansible_distribution_release }} main"
+        state: present
+        update_cache: yes
+
+    - name: Install the nodejs
+      apt:
+        name: nodejs
+        state: present
+
+- name: build the js package
+  become: yes
+  shell: |
+    cd {{code_path}}/frontend/app
+    npm install
+    npm run build
+
 - name: fill template to remote
   become: yes
   template:

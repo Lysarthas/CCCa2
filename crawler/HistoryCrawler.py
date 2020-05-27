@@ -1,3 +1,11 @@
+## Team members (Team 13):
+## Yuansan Liu, 1037351
+## Karun Varghese Mathew, 1007247
+## Junlin Chen, 1065399
+## Jingyi Shao, 1049816
+## `Han Jiang, 1066425
+
+
 from util import *
 from concurrent.futures import ThreadPoolExecutor, wait
 import time
@@ -32,9 +40,9 @@ class HistoryCrawler:
         target_users = []
         finished_users = self.get_finished_users()
 
-        all_users_results = self.get_all_users()
-        for user_id, max_tweet_id in all_users_results:
-            user_id = str(user_id)
+        all_users_results = self.tweet_db.get_view_result('_design/result', 'user', group=True, stable=True, update='lazy', page_size=5000)
+        for result in all_users_results:
+            user_id = str(result['key']); max_tweet_id = result['value']
             if user_id not in finished_users.keys():
                 target_users.append((user_id, max_tweet_id))
             elif finished_users.get(user_id) is not None:

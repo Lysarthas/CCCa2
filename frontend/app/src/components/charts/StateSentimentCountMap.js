@@ -1,3 +1,10 @@
+// Team members (Team 13):
+// Yuansan Liu, 1037351
+// Karun Varghese Mathew, 1007247
+// Junlin Chen, 1065399
+// Jingyi Shao, 1049816
+// Han Jiang, 1066425
+
 import React, { Component } from "react";
 import ReactEcharts from "echarts-for-react";
 import au_state_json from "./aus_lga_geo.json";

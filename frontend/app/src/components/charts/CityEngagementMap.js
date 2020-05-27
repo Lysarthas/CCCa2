@@ -1,3 +1,10 @@
+// Team members (Team 13):
+// Yuansan Liu, 1037351
+// Karun Varghese Mathew, 1007247
+// Junlin Chen, 1065399
+// Jingyi Shao, 1049816
+// Han Jiang, 1066425
+
 import React, { Component } from "react";
 import get_db from "../../lib/Pouchdb";
 import { Map, TileLayer, CircleMarker} from 'react-leaflet'

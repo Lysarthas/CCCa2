@@ -93,7 +93,7 @@ services:
         restart: on-failure
         environment:
             - pyscript=HistoryCrawler.py
-            - dbip=172.17.0.1
+            - dbip=172.17.0.1:5984
             - http_proxy={{http_proxy}}
             - https_proxy={{http_proxy}}
             - no_proxy={{no_proxy}}
@@ -107,7 +107,7 @@ services:
         restart: on-failure
         environment:
             - pyscript=StreamToCouchDB.py
-            - dbip=172.17.0.1
+            - dbip=172.17.0.1:5984
             - http_proxy={{http_proxy}}
             - https_proxy={{http_proxy}}
             - no_proxy={{no_proxy}}
@@ -146,6 +146,15 @@ services:
             - "{{volume_path}}/haproxy:/usr/local/etc/haproxy:ro"
         deploy:
             replicas: 2
+
+    nginx:
+        image: nginx:alpine
+        ports:
+          - "8080:80"
+        volumes:
+          - "{{code_path}}/frontend/app/build:/usr/share/nginx/html:ro"
+        deploy:
+          replicas: 4
 
 
 networks:

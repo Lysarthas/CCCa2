@@ -28,7 +28,7 @@
       script_folder: /scripts
       code_path: /code
       harvester_image_build_path: "{{code_path}}/docker_image"
-      code_version: ansible ## can set to branch name or hash value of any commit
+      code_version: master ## can set to branch name or hash value of any commit
 
   roles:
     - role: docker_swarm

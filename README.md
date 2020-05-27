@@ -1,13 +1,31 @@
-CLUSTER AND CLOUD COMPUTING PROJECT
+Team members (Team 13)::
+`Yuansan Liu, 1037351`
+`Karun Varghese Mathew, 1007247`
+`Junlin Chen, 1065399`
+`Jingyi Shao, 1049816`
+`Han Jiang, 1066425`
 
 
-Setup:
+# Deployment Guide
+## System requirement
+* Ansible 2.9
 
-    git init
-
-    git remote add origin https://github.com/Lysarthas/CCCa2.git
-
-    git pull
-
-
-Run TwitterStreamByLocation.py to crawl tweets. Please use your own twitter developer access code for crawling. It saves the tweets to a file "tweets.json". This file is expected in the TwitterAnalyzer.py. This file expects nltk to be installed. 
+## Deployment Process
+1. Make sure to use Unimelb VPN connection even though you’re using campus network. Ansible may hangs if being run from unimelb network without proxy.
+2. Clone the repo from https://github.com/Lysarthas/CCCa2 and go to `nectar` folder.
+3. To deploy, here is three cases:
+  3.1 create instances and setup remote instance and start the service. For the first case, run
+  ```
+  source ./openrc.sh
+  ansible-playbook master.yaml --extra-var db_action=backup
+  ```
+  3.2 remote instance is all set and only setup/restart service (docker swarm, concul, couchdb, web app, etc). In this case, data from cluster will be backup to backup db in semi-realtime(couples of mins) in incremental manner. For the second case, run
+  ```
+  source ./openrc.sh
+ansible-playbook remote.yaml --extra-var db_action=backup
+  ```
+  3.3 restart couchdb and store the data from `backupdb` to `cluster` when the cluster failed. This is a rare case. For the third case, run
+  ```
+  source ./openrc.sh
+ansible-playbook remote.yaml --extra-var db_action=restore
+  ```
