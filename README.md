@@ -6,6 +6,8 @@ Team members (Team 13)::
 `Han Jiang, 1066425`
 
 
+[Front end demo](http://172.26.131.162:8080/)
+
 # Deployment Guide
 ## System requirement
 * Ansible 2.9
